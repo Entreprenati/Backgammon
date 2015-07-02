@@ -548,6 +548,7 @@ function createArrayofLegitWhiteMoves () {
   // Create white singles moves for non-double roll (roll non-double & no one chip moves more than once)
 
   if( diceValues[0] != diceValues[1] ) {
+
     for( i = 0; i < 15; i++ ) {
       if( (chips[i].die1CanDo === 1) || (chips[i].die1CanDo === 5) || (chips[i].die1CanDo === 9) ) {
         moves.push(new move(i,-1,-1,-1,-1,-1,-1,diceValues[1])); 
@@ -671,7 +672,8 @@ function createArrayofLegitWhiteMoves () {
 
   if( diceValues[0] === diceValues[1] ) {
     for( i = 0; i < 15; i++ ) {
-      if( (chips[i].die4xCanDo === 1) || (chips[i].die4xCanDo === 5) || (chips[i].die4xCanDo === 9) ) {moves.push(new move(-1, -1, -1, -1, -1, -1, i, 0));
+      if( (chips[i].die4xCanDo === 1) || (chips[i].die4xCanDo === 5) || (chips[i].die4xCanDo === 9) ) {
+        moves.push(new move(-1, -1, -1, -1, -1, -1, i, 0));
       }        
     }
   }
@@ -679,83 +681,121 @@ function createArrayofLegitWhiteMoves () {
 
   // Remove illegit off-board white moves
 
-  var chipsAfterMovePreview = chips;
+  // var chipsAfterMovePreview = $.extend(true, [], chips);
 
-  console.log('chipsAfterMovePreview.length is ' + chipsAfterMovePreview.length);
+  function deepCopy (arr) {
+      var out = [];
+      for (var i = 0, len = arr.length; i < len; i++) {
+          var item = arr[i];
+          var obj = {};
+          for (var k in item) {
+              obj[k] = item[k];
+          }
+          out.push(obj);
+      }
+      return out;
+  }
 
   var badOffMoves = [];
 
   console.log("# moves before pruning is " + moves.length);
 
-
-  var test = false; 
+  var numOffMoves = 0;
+   
   for(i = 0; i<moves.length; i++) {
 
-    console.log('chips[moves[i].die1Chip] is ' + chips[moves[i].die1Chip]);
-    console.log('chips[moves[i].die2Chip] is ' + chips[moves[i].die2Chip]);
-    console.log('chips[moves[i].dieBothChip] is ' + chips[moves[i].dieBothChip]);
-    console.log('chips[moves[i].die3Chip] is ' + chips[moves[i].die3Chip]);
-    console.log('chips[moves[i].die4Chip] is ' + chips[moves[i].die4Chip]);
-    console.log('chips[moves[i].die3xChip] is ' + chips[moves[i].die3xChip]);
-    console.log('chips[moves[i].die4xChip] is ' + chips[moves[i].die4xChip]);
-
+    var chipsAfterMovePreview = deepCopy(chips);    
+    var includesOff = false;
 
     if( moves[i].die1Chip != -1 ) {
       if( chips[moves[i].die1Chip].die1CanDo == 9 ) {
-        test = true;
+        includesOff = true;
       }
     } 
+
     if( moves[i].die2Chip != -1 ) {
       if( chips[moves[i].die2Chip].die2CanDo == 9 ) {
-        test = true;
+        includesOff = true;
       }
-    } 
+    }
+
     if( moves[i].dieBothChip != -1 ) {
       if( chips[moves[i].dieBothChip].dieBothCanDo == 9 ) {
-        test = true;
+        includesOff = true;
       }
-    } 
+    }
+
     if( moves[i].die3Chip != -1 ) {
       if( chips[moves[i].die3Chip].die3CanDo == 9 ) {
-        test = true;
+        includesOff = true;
       }
     } 
+
     if( moves[i].die4Chip != -1 ) {
       if( chips[moves[i].die4Chip].die4CanDo == 9 ) {
-        test = true;
+        includesOff = true;
       }
-    } 
+    }
+
     if( moves[i].die3xChip != -1 ) {
       if( chips[moves[i].die3xChip].die3xCanDo == 9 ) {
-        test = true;
+        includesOff = true;
       }
-    } 
+    }
+
     if( moves[i].die4xChip != -1 ) {
       if( chips[moves[i].die4xChip].die4xCanDo == 9 ) {
-        test = true;
+        includesOff = true;
       }
     } 
 
-      console.log('Found an off move');
+    if( includesOff ) {  
 
-    if( test ) {  
+      numOffMoves++;
 
-      chipsAfterMovePreview[die1Chip].position    = chipsAfterMovePreview[die1Chip].position + diceValues[0];
-      chipsAfterMovePreview[die2Chip].position    = chipsAfterMovePreview[die2Chip].position + diceValues[1];
-      chipsAfterMovePreview[dieBothChip].position = chipsAfterMovePreview[dieBothChip].position + diceValues[0] + diceValues[1];
-      chipsAfterMovePreview[die3Chip].position    = chipsAfterMovePreview[die3Chip].position + diceValues[0];
-      chipsAfterMovePreview[die4Chip].position    = chipsAfterMovePreview[die4Chip].position + diceValues[0];
-      chipsAfterMovePreview[die3xChip].position   = chipsAfterMovePreview[die3xChip].position + 3*diceValues[0];
-      chipsAfterMovePreview[die4xChip].position   = chipsAfterMovePreview[die4xChip].position + 4*diceValues[0];
+      console.log('Found an off move that is: ');
+      console.log(moves[i]);
 
+      if( moves[i].die1Chip != -1 ) {
+        chipsAfterMovePreview[moves[i].die1Chip].position = chipsAfterMovePreview[moves[i].die1Chip].position + diceValues[0];
+      }
+
+      if( moves[i].die2Chip != -1 ) {
+        chipsAfterMovePreview[moves[i].die2Chip].position = chipsAfterMovePreview[moves[i].die2Chip].position + diceValues[1];
+      }
+
+      if( moves[i].dieBothChip != -1 ) {
+        chipsAfterMovePreview[moves[i].dieBothChip].position = chipsAfterMovePreview[moves[i].dieBothChip].position + diceValues[0] + diceValues[1];
+      }
+
+      if( moves[i].die3Chip != -1 ) {
+        chipsAfterMovePreview[moves[i].die3Chip].position = chipsAfterMovePreview[moves[i].die3Chip].position + diceValues[0];
+      }
+
+      if( moves[i].die4Chip != -1 ) {
+        chipsAfterMovePreview[moves[i].die4Chip].position = chipsAfterMovePreview[moves[i].die4Chip].position + diceValues[0];
+      }
+
+      if( moves[i].die3xChip != -1 ) {
+        chipsAfterMovePreview[moves[i].die3xChip].position = chipsAfterMovePreview[moves[i].die3xChip].position + 3*diceValues[0];
+      }
+
+      if( moves[i].die4xChip != -1 ) {
+        chipsAfterMovePreview[moves[i].die4xChip].position = chipsAfterMovePreview[moves[i].die4xChip].position + 4*diceValues[0];
+      }
+
+      var badoffMove = false;
       for( k = 0; k < 15; k++ ) {
         if( chipsAfterMovePreview[k].position < 18) {
-          badOffMoves.push(i);      
+          badoffMove = true;         
         }
       }
+
+      if( badoffMove ) {badOffMoves.push(i);} 
     }
   }  
 
+  console.log('numOffMoves is ' + numOffMoves);
   console.log('badOffMoves.length is ' + badOffMoves.length);
 
   for (l = badOffMoves.length -1; l >= 0; l--) {
