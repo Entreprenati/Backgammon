@@ -124,7 +124,7 @@ chips[29] =  new chip (5,0,0,0,0,0,0,0);
 
 // Create the move object constructor and the arrays of moves and legit moves
 
-function move (die1Chip, die2Chip, dieBothChip, die3Chip, die4Chip, die3xChip, die4xChip, under) { 
+function move (die1Chip, die2Chip, dieBothChip, die3Chip, die4Chip, die3xChip, die4xChip, under, off, blot) { 
   this.die1Chip = die1Chip;
   this.die2Chip = die2Chip;
   this.dieBothChip = dieBothChip;
@@ -132,7 +132,10 @@ function move (die1Chip, die2Chip, dieBothChip, die3Chip, die4Chip, die3xChip, d
   this.die4Chip = die4Chip;
   this.die3xChip = die3xChip;
   this.die4xChip = die4xChip;  
-  this.under = under; 
+  this.under = under;
+  this.off = off;
+  this.blot = blot;
+
 }
 
   var moves = [];
@@ -150,8 +153,13 @@ $('#midBar').click(function() {
 
   if(!diceRolled) { 
 
-    // Roll dice  
+    // Roll dice 
+
       diceValues = roll_dice();
+
+      $('#die0 span').text(diceValues[0]);      
+      $('#die1 span').text(diceValues[1]);
+
       diceRolled = true;
       console.log('dice roll is ' + diceValues[0] + " " + diceValues[1]);
 
@@ -165,7 +173,6 @@ $('#midBar').click(function() {
 
 
     // Make manual black move by clicking on chips and destinations (if black turn)
-      //MUST FIX TO ACCOUNT FOR A BLOCKED MOVE!!!
 
     if (diceRolled && !whiteTurn) {   
       blackMove();
@@ -188,37 +195,203 @@ function makeRandomWhiteMove () {
   function moveChip (chipToMove, numSpaces) {
     var destinationNum = (chips[chipToMove].position) + numSpaces;
     if (destinationNum > 23) {$('#chip' + chipToMove).detach();
-    } else { $('#chip' + chipToMove).detach().appendTo('#positioner' + destinationNum);
+    } else { 
+        $('#chip' + chipToMove).detach().appendTo('#positioner' + destinationNum);
+        chips[chipToMove].position = destinationNum;
+        for(k=15; k<30; k++) {
+          if(chips[k].position == destinationNum) {
+            $('#chip' + k).detach().appendTo('#barForBlack');
+            chips[k].position = 100;
+          }
+        }
       }
-    chips[chipToMove].position = destinationNum;
   }
 
   if(legitMoves.length !== 0) {
 
+    var delayBlinkStart = 0;
+    var delayMove = delayBlinkStart + 3000;
+
     var die1Move = legitMoves[randomMoveNum].die1Chip;
-    if (die1Move != -1) {moveChip(die1Move, diceValues[0]);}
+    if (die1Move != -1) {
+
+      $('#chip' + die1Move).effect( "pulsate", {times:3}, 3000 );
+
+      // var triToBlink = chips[die1Move].position + diceValues[0];
+      // $('#midTri' + triToBlink).effect( "pulsate", {times:3}, 3000 );
+
+      setTimeout( function() {
+        moveChip (die1Move, diceValues[0]); 
+      }, 3000 );
+    }
 
     var die2Move = legitMoves[randomMoveNum].die2Chip;
-    if (die2Move != -1) {moveChip(die2Move, diceValues[1]);}
+    if (die2Move != -1) { 
+
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+
+      setTimeout( function() {
+        $('#chip' + die2Move).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart);
+
+      setTimeout( function() {
+        moveChip (die2Move, diceValues[1]); 
+      }, delayMove);
+ 
+    }
 
     var dieBothMove = legitMoves[randomMoveNum].dieBothChip;
-    if (dieBothMove != -1) {moveChip(dieBothMove, (diceValues[0] + diceValues[1]));}
+    if (dieBothMove != -1) {
+
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+
+      setTimeout(function() {
+        $('#chip' + dieBothMove).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (dieBothMove, diceValues[0]); 
+      }, delayMove);
+ 
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+
+      setTimeout(function() {
+        $('#chip' + dieBothMove).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (dieBothMove, diceValues[1]); 
+      }, delayMove);
+
+    }
 
     var die3Move = legitMoves[randomMoveNum].die3Chip;
-    if (die3Move != -1) {moveChip(die3Move, diceValues[0]);}
+    if (die3Move != -1) {
+
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+
+      setTimeout(function() {
+        $('#chip' + die3Move).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (die3Move, diceValues[0]); 
+      }, delayMove);
+ 
+    }
 
     var die4Move = legitMoves[randomMoveNum].die4Chip;
-    if (die4Move != -1) {moveChip(die4Move, diceValues[0]);}
+    if (die4Move != -1) {
+
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+
+      setTimeout(function() {
+        $('#chip' + die4Move).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (die4Move, diceValues[0]); 
+      }, delayMove);
+ 
+    }
 
     var die3xMove = legitMoves[randomMoveNum].die3xChip;
-    if (die3xMove != -1) {moveChip(die3xMove, 3*diceValues[0]);}
+    if (die3xMove != -1) {
+
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+ 
+      setTimeout(function() {
+        $('#chip' + die3xMove).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (die3xMove, diceValues[0]); 
+      }, delayMove);
+ 
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+ 
+      setTimeout(function() {
+        $('#chip' + die3xMove).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (die3xMove, diceValues[0]); 
+      }, delayMove);
+
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+ 
+      setTimeout(function() {
+        $('#chip' + die3xMove).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (die3xMove, diceValues[0]); 
+      }, delayMove);
+
+    }
 
     var die4xMove = legitMoves[randomMoveNum].die4xChip;
-    if (die4xMove != -1) {moveChip(die4xMove, 4*diceValues[0]);}
+    if (die4xMove != -1) {
 
-  } 
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+
+      setTimeout(function() {
+        $('#chip' + die4xMove).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (die4xMove, diceValues[0]); 
+      }, delayMove);
+ 
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+
+      setTimeout(function() {
+        $('#chip' + die4xMove).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (die4xMove, diceValues[0]); 
+      }, delayMove);
+
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+
+      setTimeout(function() {
+        $('#chip' + die4xMove).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (die4xMove, diceValues[0]); 
+      }, delayMove);
+
+      delayBlinkStart = delayBlinkStart + 3500;
+      delayMove = delayBlinkStart + 3000;
+
+      setTimeout(function() {
+        $('#chip' + die4xMove).effect( "pulsate", {times:3}, 3000 ); 
+      }, delayBlinkStart );
+
+      setTimeout( function() {
+        moveChip (die4xMove, diceValues[0]); 
+      }, delayMove);      
+
+    }
+
+  }
+
   whiteTurn = false;
   diceRolled = false; 
+
 }
 
 
@@ -302,9 +475,16 @@ function blackMove () {
     targetChipChosen = false;
     targetPositionerChosen = false;
 
-    console.log('chip is ' + targetChipNum);
-    console.log('positioner is ' + targetPositionerNum);
-    console.log('new position of chip ' + targetChipNum + ' is ' +chips[targetChipNum].position);
+        for(k=0; k<15; k++) {
+          if(chips[k].position == targetPositionerNum) {
+            $('#chip' + k).detach().appendTo('#barForWhite');
+            chips[k].position = -1;
+          }  
+        }  
+
+    // console.log('chip is ' + targetChipNum);
+    // console.log('positioner is ' + targetPositionerNum);
+    // console.log('new position of chip ' + targetChipNum + ' is ' +chips[targetChipNum].position);
     
   });
 
@@ -324,6 +504,8 @@ function createArrayofLegitWhiteMoves () {
 
 
 // Create white move posabilities. Do this by creating all possible non-blocked moves and then extracting those that are legit.
+
+  // Populate the die movement possibilities of the white chips
 
   // Create white dieOne posabilities
 
@@ -545,6 +727,8 @@ function createArrayofLegitWhiteMoves () {
     }
 
 
+  // Create the moves
+
   // Create white singles moves for non-double roll (roll non-double & no one chip moves more than once)
 
   if( diceValues[0] != diceValues[1] ) {
@@ -681,8 +865,6 @@ function createArrayofLegitWhiteMoves () {
 
   // Remove illegit off-board white moves
 
-  // var chipsAfterMovePreview = $.extend(true, [], chips);
-
   function deepCopy (arr) {
       var out = [];
       for (var i = 0, len = arr.length; i < len; i++) {
@@ -704,7 +886,8 @@ function createArrayofLegitWhiteMoves () {
    
   for(i = 0; i<moves.length; i++) {
 
-    var chipsAfterMovePreview = deepCopy(chips);    
+    var chipsAfterMovePreview = deepCopy(chips);
+    // var chipsAfterMovePreview = $.extend(true, [], chips);    
     var includesOff = false;
 
     if( moves[i].die1Chip != -1 ) {
@@ -753,8 +936,8 @@ function createArrayofLegitWhiteMoves () {
 
       numOffMoves++;
 
-      console.log('Found an off move that is: ');
-      console.log(moves[i]);
+      // console.log('Found an off move that is: ');
+      // console.log(moves[i]);
 
       if( moves[i].die1Chip != -1 ) {
         chipsAfterMovePreview[moves[i].die1Chip].position = chipsAfterMovePreview[moves[i].die1Chip].position + diceValues[0];
@@ -799,11 +982,73 @@ function createArrayofLegitWhiteMoves () {
   console.log('badOffMoves.length is ' + badOffMoves.length);
 
   for (l = badOffMoves.length -1; l >= 0; l--) {
-   console.log('l is ' + l); 
    moves.splice(badOffMoves[l], 1);  
   }
 
   console.log("# moves after pruning is " + moves.length);
+
+
+  // Remove illegit on-bar white moves
+
+  var badOnBarMoves = [];
+
+  var onBar = 0;  
+
+  for(k=0; k<15; k++) {
+    if (chips[k].position == -1) {onBar = 1;}
+  }
+
+  if (onBar) {  
+
+    for(i = 0; i<moves.length; i++) {
+      
+      var chipsAfterMovePreview2 = deepCopy(chips);
+
+      if( moves[i].die1Chip != -1 ) {
+        chipsAfterMovePreview2[moves[i].die1Chip].position = chipsAfterMovePreview2[moves[i].die1Chip].position + diceValues[0];
+      }
+
+      if( moves[i].die2Chip != -1 ) {
+        chipsAfterMovePreview2[moves[i].die2Chip].position = chipsAfterMovePreview2[moves[i].die2Chip].position + diceValues[1];
+      }
+
+      if( moves[i].dieBothChip != -1 ) {
+        chipsAfterMovePreview2[moves[i].dieBothChip].position = chipsAfterMovePreview2[moves[i].dieBothChip].position + diceValues[0] + diceValues[1];
+      }
+
+      if( moves[i].die3Chip != -1 ) {
+        chipsAfterMovePreview2[moves[i].die3Chip].position = chipsAfterMovePreview2[moves[i].die3Chip].position + diceValues[0];
+      }
+
+      if( moves[i].die4Chip != -1 ) {
+        chipsAfterMovePreview2[moves[i].die4Chip].position = chipsAfterMovePreview2[moves[i].die4Chip].position + diceValues[0];
+      }
+
+      if( moves[i].die3xChip != -1 ) {
+        chipsAfterMovePreview2[moves[i].die3xChip].position = chipsAfterMovePreview2[moves[i].die3xChip].position + 3*diceValues[0];
+      }
+
+      if( moves[i].die4xChip != -1 ) {
+        chipsAfterMovePreview2[moves[i].die4xChip].position = chipsAfterMovePreview2[moves[i].die4xChip].position + 4*diceValues[0];
+      }
+
+      var badOnBarMove = false;
+      for( k = 0; k < 15; k++ ) {
+        if( chipsAfterMovePreview2[k].position === -1) {
+          badOnBarMove = true;         
+        }
+      }  
+    
+      if( badOnBarMove ) {badOnBarMoves.push(i);} 
+
+    }
+
+      for (l = badOnBarMoves.length -1; l >= 0; l--) {
+        moves.splice(badOnBarMoves[l], 1);  
+      }
+     
+  }
+
 
   // Create a set of par white moves (moves that have "under = 0")
 

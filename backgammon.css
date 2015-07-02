@@ -40,6 +40,47 @@
   background-color: #864218;
 }
 
+#barForBlack {
+  width: 3.9vw;
+  position: absolute;
+    left: 50%;
+  transform: translateX(-50%);  
+}
+
+.dice {
+  width: 3.9vw;
+  height: 8vw;
+  position: absolute;
+    left: 50%;
+    top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#die0, #die1 {
+  position: relative;;
+  height: 50%;
+  border: .2vw black solid;  
+  background-color: white;
+  text-align: center; 
+}
+
+#die0 span, #die1 span {
+  position: absolute;
+    left: 50%;
+    top: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  font-size: 4vw;
+}
+
+#barForWhite {
+  width: 3.9vw;
+  position: absolute;
+    left: 50%;
+    bottom: 2.5%;
+  transform: translateX(-50%);  
+}
+
 #rightSide {
   width: 45%;
   height: 95%;
