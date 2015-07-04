@@ -175,7 +175,7 @@ $('#midBar').click(function() {
     // Make manual black move by clicking on chips and destinations (if black turn)
 
     if (diceRolled && !whiteTurn) {   
-      blackMove();
+      blackMoveDragDrop();
     }
   }
 });
@@ -184,6 +184,7 @@ $('#midBar').click(function() {
 // Create function that make a random white move
 
 function makeRandomWhiteMove () {
+
   var randomMoveNum = 0;
   function randomMoveNumGenerator () {
     randomMoveNum = Math.round(legitMoves.length * Math.random());
@@ -193,16 +194,19 @@ function makeRandomWhiteMove () {
   randomMoveNumGenerator();
 
   function moveChip (chipToMove, numSpaces) {
+
     var destinationNum = (chips[chipToMove].position) + numSpaces;
+ 
     if (destinationNum > 23) {$('#chip' + chipToMove).detach();
-    } else { 
-        $('#chip' + chipToMove).detach().appendTo('#positioner' + destinationNum);
-        chips[chipToMove].position = destinationNum;
-        for(k=15; k<30; k++) {
-          if(chips[k].position == destinationNum) {
-            $('#chip' + k).detach().appendTo('#barForBlack');
-            chips[k].position = 100;
-          }
+    } else {
+        $('#chip' + chipToMove).detach().appendTo('#positioner' + destinationNum + ' ' + '.ballHolder');
+      }
+      chips[chipToMove].position = destinationNum;
+
+      for(k=15; k<30; k++) {
+        if(chips[k].position == destinationNum) {
+          $('#chip' + k).detach().appendTo('#barForBlack');
+          chips[k].position = 100;
         }
       }
   }
@@ -395,7 +399,7 @@ function makeRandomWhiteMove () {
 }
 
 
-// Create function that makes a manual black move
+// Create function that makes a manual black move (without drag & drop)
 
 function blackMove () {
 
@@ -472,6 +476,9 @@ function blackMove () {
     var targetPositionerNum = $(targetPositioner)[0].id.replace("positioner", "");
     chips[targetChipNum].position = targetPositionerNum;
 
+    console.log('targetChipNum: ' + targetChipNum);
+    console.log('targetPositionerNum: ' + targetPositionerNum);
+
     targetChipChosen = false;
     targetPositionerChosen = false;
 
@@ -496,6 +503,148 @@ function blackMove () {
   });
 
 } 
+
+
+//Drag & drop black move
+
+function blackMoveDragDrop () {
+
+  diceRolled = true;
+
+  var targetPositioner = {};
+  var targetChip = {};
+  var targetChipNum;
+
+  $('.blackChip').mouseenter(
+    function () {
+      if(diceRolled && !whiteTurn) {
+        $(this).addClass('grabbable');
+      }
+    }
+  );
+
+ $('.blackChip').mouseleave(
+    function () {
+      if(diceRolled && !whiteTurn) {
+        $(this).removeClass('grabbable grabbed');
+      }
+    }
+  );
+
+  $('.blackChip').mousedown(
+    function() {
+      if(diceRolled && !whiteTurn) {
+        $(this).removeClass('grabbable').addClass('grabbed');
+      }
+    }
+  );
+
+  $('.midTri').on('dragenter', 
+
+    function() { 
+
+      event.preventDefault();      
+
+      if( $(event.target)[0].id.replace('midTri', '') != targetChipNum ) {
+
+        var numWhites = 0;
+        var blocked = 0;
+        for(k=0; k<15; k++) {
+          if( chips[k].position == $(event.target)[0].id.replace('midTri', '') ) {
+            numWhites = numWhites + 1;
+          }
+        }
+         if(numWhites>1) {
+          blocked = 1;
+        }
+
+        if(!blocked) {
+          $(event.target).addClass('dropZone');
+        }
+      }
+
+    }
+  );
+
+  $('.midTri').on('dragover', 
+    function() {  
+      event.preventDefault();        
+    }
+  );
+
+  $('.midTri').on('dragleave', 
+    function() {  
+      $(event.target).removeClass('dropZone');
+    }
+  );
+
+  $('.blackChip').on('dragstart', 
+    function() {      
+      targetChip = event.target;
+      targetChipNum = $(targetChip)[0].id.replace("chip", "");
+    }
+  );
+
+  $('.blackChip').on('drag', 
+    function() {  
+      event.preventDefault();
+      $(event.target).addClass('dragged');     
+      $('.midTri').addClass('disableChildEvents');  
+    }
+  );
+
+  $('.midTri').on('drop',  
+    function() { 
+
+        event.preventDefault();
+
+        $(event.target).removeClass('disableChildEvents');
+
+        targetPositioner = $(event.target).find('.positioner');
+
+        var placeInside = targetPositioner.find('.ballHolder');
+
+        if( $(event.target).hasClass('dropZone') ) {  
+        
+          if( $(targetPositioner).hasClass('positionerTop') ) {
+            $(targetChip).detach().appendTo(targetPositioner);
+          } else {
+            $(targetChip).detach().appendTo(placeInside);
+            }
+
+          var targetChipNum = $(targetChip)[0].id.replace("chip", "");
+          var targetPositionerNum = $(targetPositioner)[0].id.replace("positioner", "");
+          chips[targetChipNum].position = targetPositionerNum;
+
+          console.log('targetChipNum: ' + targetChipNum);
+          console.log('targetPositionerNum: ' + targetPositionerNum);
+
+              for(k=0; k<15; k++) {
+                if(chips[k].position == targetPositionerNum) {
+                  $('#chip' + k).detach().appendTo('#barForWhite');
+                  chips[k].position = -1;
+                }  
+              }
+        } 
+    }      
+  );
+
+  $(document).on('dragend', 
+    function() {      
+      $('.midTri').removeClass('disableChildEvents dropZone');    
+    }
+  );
+
+
+// End black turn
+
+  $('#rightEdge').click(function() {
+    diceRolled = false;
+    whiteTurn = true;
+  });
+
+} /*End the drag & drop move*/
+
 
 
 // Create function that generates an array of legit white moves (each move is a move object)
@@ -1073,7 +1222,47 @@ function createArrayofLegitWhiteMoves () {
         } 
       }
     }
-  
+
+// If no legit moves, then check if any on the bar that can come in to use some of the dice
+
+  var chipsOnBar = [];
+  if(legitMoves.length === 0 && onBar === 1) {
+    for (i=0; i<15; i++) {
+      if(chips[i].position === -1) {
+        chipsOnBar.push(i);
+      }
+    }
+
+    var blocked = [];
+    for(i=0; i<6; i++) {
+      numBlacks = 0;
+      for(k=15; k<30; k++) {
+        if(chips[k].position == i) {
+          numBlacks = numBlacks + 1;
+        }
+      }
+      console.log('i is ' + i + ' and numBlacks is ' + numBlacks);
+      if(numBlacks>1) {
+        blocked.push(i);
+      }
+    }
+
+    if( $.inArray((diceValues[0]-1), blocked) == -1 ) {
+      var inDestination = diceValues[0]-1;
+      $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination + ' ' + '.ballHolder');
+      chips[chipsOnBar[0]].position = inDestination;            
+      chipsOnBar.splice(0,1);
+    }
+
+    if( $.inArray((diceValues[1]-1), blocked) == -1 ) {
+      var inDestination2 = diceValues[1]-1;
+      $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination2 + ' ' + '.ballHolder');
+      chips[chipsOnBar[0]].position = inDestination2;            
+      chipsOnBar.splice(0,1);
+    }
+    
+  }
+
   function indexOfLowest(a) {
     var lowest = 0;
     for (var i = 1; i < a.length; i++) {
@@ -1087,10 +1276,17 @@ function createArrayofLegitWhiteMoves () {
   console.log("# legitMoves is " + legitMoves.length);
 
 
-}
+  $('#topEdge').click(function() {
+    for(i=15; i<30; i++) {
+      console.log(chips[i].position);
+    }
+  });
 
 
 
+
+
+} /*End entire JS file*/
 
 
 

@@ -8,10 +8,6 @@
 #boardWrapper {
   width: 100vw;
   height: 100vh;
-  position: absolute;
-    top: 50%;
-    left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 #topEdge {
@@ -44,7 +40,7 @@
   width: 3.9vw;
   position: absolute;
     left: 50%;
-  transform: translateX(-50%);  
+  transform: translateX(-50%);
 }
 
 .dice {
@@ -61,10 +57,10 @@
   height: 50%;
   border: .2vw black solid;  
   background-color: white;
-  text-align: center; 
 }
 
 #die0 span, #die1 span {
+  display: inline-block;
   position: absolute;
     left: 50%;
     top: 50%;
@@ -78,7 +74,7 @@
   position: absolute;
     left: 50%;
     bottom: 2.5%;
-  transform: translateX(-50%);  
+  transform: translateX(-50%);   
 }
 
 #rightSide {
@@ -102,6 +98,7 @@
 }
 
 .quad {
+  position: relative;
   width: 100%;
   height: 50%;
   background-color: yellow;
@@ -118,7 +115,7 @@
   overflow: hidden;
   display: inline-block;
   text-align: initial;
-  z-index: 1000;  
+  z-index: 1000; 
 }
 
 .oddTri {
@@ -162,11 +159,12 @@
 
 .triDownWrap {
   position: relative;
-  height: 100%;
+  height: 99%;
   width: 14%;
   overflow: hidden;
   display: inline-block;
   text-align: initial;  
+  z-index: 1000; 
 }
 
 .midTriDown {
@@ -199,7 +197,7 @@
 
 .positioner {
   height: 100%;
-  width: 3.7vw;
+  width: 3.9vw;
   background-color: rgba(0, 0, 0, 0.0);
   z-index: 1000;
 }
@@ -208,7 +206,13 @@
   position: absolute;
     bottom: 0;
     left: 50%;  
-  transform: translateX(-50%) rotate(180deg);
+  transform: translateX(-50%);
+}
+
+.positionerBottom .ballHolder {
+  position: absolute;
+    bottom: 0;    
+  text-align: center;  
 }
 
 .positionerTop {
@@ -216,6 +220,12 @@
     top: 0;
     left: 50%;
   transform: translateX(-50%);
+}
+
+.positionerTop .ballHolder {
+  position: absolute;
+    top: 0;    
+  text-align: center;  
 }
 
 .chip {
@@ -235,5 +245,22 @@
   background-color: #F6F2F2;
 }
 
+.grabbable {
+  cursor: -webkit-grab;  
+  cursor: -moz-grab;
+  cursor: -ms-grab;
+}
 
+.grabbed {
+  cursor: -webkit-grabbing;  
+  cursor: -moz-grabbing;  
+  cursor: -ms-grabbing;
+}
 
+.dropZone {
+  background-color: lightgreen;
+}
+
+.disableChildEvents * {
+  pointer-events: none;
+}
