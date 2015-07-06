@@ -13,18 +13,62 @@
 #topEdge {
   width: 100%;
   height: 2.5%;
+/*  background-image: url(images/leather.png);*/
   background-color: #864218;
 }
 
 #leftEdge {
-  width: 2.5%;
+  width: 5%;
   height: 95%;
   float: left;
   background-color: #864218;
+  /*background-image: url(images/leather.png);*/
+}
+
+#homeWrapper{
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+#homeForWhite {
+  width: 3.8vw;
+  height: 45%;
+  position: absolute;
+    left: 49.5%;
+    top: 1%;
+  border-radius: 5%;
+  transform: translateX(-50%);
+  background: radial-gradient(#ECEAD0, #864218);
+  border: .2vw #631F07 solid;
+/*  background-blend-mode: hard-light;*/
+}
+
+/*#homeForDice {
+  width: 3.8vw;
+  height: 8%;
+  position: absolute;
+    left: 50%;
+    top: 50%;
+  transform: translate(-50%, -50%);  
+  outline: 1px blue solid;
+}*/
+
+#homeForBlack {
+  width: 3.8vw;
+  height: 45%;
+  position: absolute;
+    left: 49.5%;
+    bottom: 1%;
+  transform: translateX(-50%);   
+  border-radius: 5%;
+  transform: translateX(-50%);
+  background: radial-gradient(#ECEAD0, #864218); 
+  border: .2vw #631F07 solid;  
 }
 
 #leftSide {
-  width: 45%;
+  width: 42.5%;
   height: 95%;
   float: left;
 }
@@ -33,18 +77,19 @@
   width: 5%;
   height: 95%;
   float: left;
+/*  background-image: url(images/leather.png);*/
   background-color: #864218;
 }
 
 #barForBlack {
-  width: 3.9vw;
+  width: 3.8vw;
   position: absolute;
     left: 50%;
   transform: translateX(-50%);
 }
 
 .dice {
-  width: 3.9vw;
+  width: 3.8vw;
   height: 8vw;
   position: absolute;
     left: 50%;
@@ -55,8 +100,21 @@
 #die0, #die1 {
   position: relative;;
   height: 50%;
-  border: .2vw black solid;  
+  border-radius: 10%; 
   background-color: white;
+}
+
+#die0 {
+  border-width: .2vw .2vw .2vw .2vw; 
+  border-color: black;
+  border-style: solid; 
+  margin-bottom: .4vw;
+}
+
+#die1 {
+  border-width: .2vw .2vw .2vw .2vw; 
+  border-color: black;
+  border-style: solid; 
 }
 
 #die0 span, #die1 span {
@@ -70,7 +128,7 @@
 }
 
 #barForWhite {
-  width: 3.9vw;
+  width: 3.8vw;
   position: absolute;
     left: 50%;
     bottom: 2.5%;
@@ -78,22 +136,26 @@
 }
 
 #rightSide {
-  width: 45%;
+  width: 42.5%;
   height: 95%;
   float: left;
 }
 
 #rightEdge {
-  width: 2.5%;
+  width: 5%;
   height: 95%;
   float: left;
   background-color: #864218;
+/*background-image: url(images/leather.png);*/
+/*background-repeat: no-repeat;
+background-size: cover;*/
 }
 
 #bottomEdge {
   width: 100%;
   height: 2.5%;
   clear: both;
+/*  background-image: url(images/leather.png);*/
   background-color: #864218;
 }
 
@@ -197,7 +259,7 @@
 
 .positioner {
   height: 100%;
-  width: 3.9vw;
+  width: 3.8vw;
   background-color: rgba(0, 0, 0, 0.0);
   z-index: 1000;
 }
@@ -209,10 +271,17 @@
   transform: translateX(-50%);
 }
 
-.positionerBottom .ballHolder {
+.positionerBottom .chipHolder {
   position: absolute;
     bottom: 0;    
   text-align: center;  
+}
+
+.positionerBottom .excessChipHolder {
+  position: absolute;
+    bottom: 1.95vw;
+  text-align: center; 
+  z-index: 100000;
 }
 
 .positionerTop {
@@ -222,27 +291,36 @@
   transform: translateX(-50%);
 }
 
-.positionerTop .ballHolder {
+.positionerTop .chipHolder {
   position: absolute;
     top: 0;    
   text-align: center;  
 }
 
+.positionerTop .excessChipHolder {
+  position: absolute;
+    top: 1.95vw;
+  text-align: center; 
+  z-index: 100000;
+}
+
 .chip {
   height: 3.5vw;
   width: 3.5vw;
-  border: .2vw solid black;
+  border: .15vw solid black;
   border-radius: 100%;
   position: relative;
   z-index: 1000;
 }
 
 .blackChip {
-  background-color: #766F6F;
+  background-image: url(images/blackChip2.jpg);
+  background-size: cover;
 }
 
-.whiteChip {
-  background-color: #F6F2F2;
+.whiteChip {  
+  background-image: url(images/whiteChip2.jpg);
+  background-size: cover;
 }
 
 .grabbable {
@@ -259,8 +337,34 @@
 
 .dropZone {
   background-color: lightgreen;
+  box-shadow: 0 0 1vw lightgreen;
 }
 
 .disableChildEvents * {
   pointer-events: none;
+}
+
+.dragged {
+  opacity: 0;
+}
+
+#rightEdgeMessage {
+  width: 4vw;
+  position: absolute;
+    top: 50%;
+  transform: translateY(-50%);  
+}
+
+#rightEdgeMessage span {  
+  background-color: yellow;
+  padding: .1vw;
+  display: inline-block;
+  position: absolute;
+    left: 50%;
+    top: 50%;
+  transform: translate(-35%, -50%);
+  font-weight: bold;
+  font-size: 2.5vw;
+  border: .2vw red solid;
+  border-radius: 10%;
 }

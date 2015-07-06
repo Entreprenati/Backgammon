@@ -143,63 +143,108 @@ function move (die1Chip, die2Chip, dieBothChip, die3Chip, die4Chip, die3xChip, d
 
 // PLAY THE GAME!!!
 
-// Roll dice when click on dice roll activator (if not already rolled); legit moves will then be determined and storred in an array; then either a white or a black move will be triggered (alternatively, starting with white). Computer is white. Computer makes random legit moves. Other player mannually makes moves of his or her choice. 
+// White player (computer) rolls dice and determines legit moves and stores them in an array; Computer then makes random legit moves. Other player mannually makes moves of his or her choice (on the honor system).
 
 var diceRolled = false;
 var diceValues = [];
 var whiteTurn = true;
 
-$('#midBar').click(function() {
-
-  if(!diceRolled) { 
-
-    // Roll dice 
-
-      diceValues = roll_dice();
-
-      $('#die0 span').text(diceValues[0]);      
-      $('#die1 span').text(diceValues[1]);
-
-      diceRolled = true;
-      console.log('dice roll is ' + diceValues[0] + " " + diceValues[1]);
+$(window).load(function() {
+  confirm('Click to start game (computer goes first)');
+  setTimeout(function() { 
+    whiteMove();
+  }, 1000);
+});
 
 
-    // Make random white move (if white turn)
+function whiteMove() {
 
-    if(diceRolled && whiteTurn) {
-      createArrayofLegitWhiteMoves();
-      makeRandomWhiteMove();
-    }
+  console.log('whiteMove called');
+
+  diceValues = roll_dice();
+  $('#die0 span').text(diceValues[0]);      
+  $('#die1 span').text(diceValues[1]);
+
+  // var iterateTime = 0;
+  // for(var c = 0; c < 7; c++) {
+  //   setTimeout(fakeRoll, iterateTime);
+  //   iterateTime = iterateTime + 200;
+  // }
+
+  // function fakeRoll() {
+  //   var diceValuesFake = roll_dice();
+  //   $('#die0 span').text(diceValuesFake[0]);      
+  //   $('#die1 span').text(diceValuesFake[1]);
+  // }
+
+  diceRolled = true;
+
+  createArrayofLegitWhiteMoves();
+
+  makeRandomWhiteMove();
+
+}
 
 
-    // Make manual black move by clicking on chips and destinations (if black turn)
+// Make black move (after white turn, upon dice click)
 
-    if (diceRolled && !whiteTurn) {   
+var firstBlackMove = true;
+
+$('.dice').unbind().click(
+  function() {
+    if(!whiteTurn && !diceRolled) {
       blackMoveDragDrop();
     }
   }
-});
-
+);
 
 // Create function that make a random white move
 
 function makeRandomWhiteMove () {
+  
+  console.log('makeRandomWhiteMove called');
 
   var randomMoveNum = 0;
+
   function randomMoveNumGenerator () {
     randomMoveNum = Math.round(legitMoves.length * Math.random());
     if(randomMoveNum == legitMoves.length) {randomMoveNum = legitMoves.length -1;}
-    console.log('randomMoveNum is ' + randomMoveNum); 
   }
   randomMoveNumGenerator();
 
+  console.log(legitMoves[randomMoveNum]);
+
   function moveChip (chipToMove, numSpaces) {
+
+    console.log('moveChip called on Chip: ' + chipToMove);
 
     var destinationNum = (chips[chipToMove].position) + numSpaces;
  
-    if (destinationNum > 23) {$('#chip' + chipToMove).detach();
+    if (destinationNum > 23) {
+      $('#chip' + chipToMove).css({
+        'border-radius': '25%',
+        'height': '1.225vw',
+        'background-image': 'none',
+        'background': 'radial-gradient(#ECEAD0, white)'
+      });
+      $('#chip' + chipToMove).detach().appendTo('#homeForWhite');
     } else {
-        $('#chip' + chipToMove).detach().appendTo('#positioner' + destinationNum + ' ' + '.ballHolder');
+      var numWhites = 0;
+      var full = 0;
+      for(i=0; i<15; i++) {
+        if( chips[i].position ==  destinationNum) {
+          numWhites = numWhites + 1;
+        }
+      }
+      if(numWhites>=5) {
+        full = 1;
+        // $(chips[chipToMove]).css('z-index', '100000');
+      }
+      if(!full) {
+        $('#chip' + chipToMove).detach().appendTo('#positioner' + destinationNum + ' ' + '.chipHolder');
+      } else {
+          $('#chip' + chipToMove).detach().appendTo('#positioner' + destinationNum + ' ' + '.excessChipHolder');         
+        }
       }
       chips[chipToMove].position = destinationNum;
 
@@ -219,10 +264,9 @@ function makeRandomWhiteMove () {
     var die1Move = legitMoves[randomMoveNum].die1Chip;
     if (die1Move != -1) {
 
-      $('#chip' + die1Move).effect( "pulsate", {times:3}, 3000 );
+      console.log('Die1Move is: ' + die1Move);
 
-      // var triToBlink = chips[die1Move].position + diceValues[0];
-      // $('#midTri' + triToBlink).effect( "pulsate", {times:3}, 3000 );
+      $('#chip' + die1Move).effect( "pulsate", {times:3}, 3000 );
 
       setTimeout( function() {
         moveChip (die1Move, diceValues[0]); 
@@ -231,6 +275,8 @@ function makeRandomWhiteMove () {
 
     var die2Move = legitMoves[randomMoveNum].die2Chip;
     if (die2Move != -1) { 
+
+      console.log('Die2Move is: ' + die2Move);
 
       delayBlinkStart = delayBlinkStart + 3500;
       delayMove = delayBlinkStart + 3000;
@@ -247,6 +293,8 @@ function makeRandomWhiteMove () {
 
     var dieBothMove = legitMoves[randomMoveNum].dieBothChip;
     if (dieBothMove != -1) {
+
+      console.log('DieBothMove is: ' + dieBothMove);
 
       delayBlinkStart = delayBlinkStart + 3500;
       delayMove = delayBlinkStart + 3000;
@@ -275,6 +323,8 @@ function makeRandomWhiteMove () {
     var die3Move = legitMoves[randomMoveNum].die3Chip;
     if (die3Move != -1) {
 
+      console.log('Die3Move is: ' + die3Move);
+
       delayBlinkStart = delayBlinkStart + 3500;
       delayMove = delayBlinkStart + 3000;
 
@@ -291,6 +341,8 @@ function makeRandomWhiteMove () {
     var die4Move = legitMoves[randomMoveNum].die4Chip;
     if (die4Move != -1) {
 
+      console.log('Die4Move is: ' + die4Move);
+
       delayBlinkStart = delayBlinkStart + 3500;
       delayMove = delayBlinkStart + 3000;
 
@@ -306,6 +358,8 @@ function makeRandomWhiteMove () {
 
     var die3xMove = legitMoves[randomMoveNum].die3xChip;
     if (die3xMove != -1) {
+
+      console.log('Die3xMove');
 
       delayBlinkStart = delayBlinkStart + 3500;
       delayMove = delayBlinkStart + 3000;
@@ -345,6 +399,8 @@ function makeRandomWhiteMove () {
     var die4xMove = legitMoves[randomMoveNum].die4xChip;
     if (die4xMove != -1) {
 
+      console.log('Die4xMove');
+
       delayBlinkStart = delayBlinkStart + 3500;
       delayMove = delayBlinkStart + 3000;
 
@@ -381,135 +437,174 @@ function makeRandomWhiteMove () {
       delayBlinkStart = delayBlinkStart + 3500;
       delayMove = delayBlinkStart + 3000;
 
-      setTimeout(function() {
+      setTimeout( function() {
         $('#chip' + die4xMove).effect( "pulsate", {times:3}, 3000 ); 
       }, delayBlinkStart );
 
       setTimeout( function() {
         moveChip (die4xMove, diceValues[0]); 
-      }, delayMove);      
+      }, delayMove); 
 
     }
 
+    setTimeout( function() {
+      // confirm('Your turn; click dice to roll');
+      $('#die0 span').text('-');      
+      $('#die1 span').text('-');
+      $('#yourTurn').trigger('play');
+      if (firstBlackMove) {
+        confirm("Click dice to roll; then drag & drop your moves; then hit 'DONE'");
+        firstBlackMove = false; 
+      }
+      $('.dice').css('cursor', 'pointer');
+      whiteTurn = false;
+      diceRolled = false;
+    }, delayMove + 1500);  
+
   }
 
-  whiteTurn = false;
-  diceRolled = false; 
+  if(legitMoves.length === 0) {
+    // confirm('Your turn; click dice to roll'); 
+    setTimeout( function() {
+      $('#die0 span').text('-');      
+      $('#die1 span').text('-');
+      $('#yourTurn').trigger('play');
+      $('.dice').css('cursor', 'pointer');
+      whiteTurn = false;
+      diceRolled = false;
+    }, 7000);
+  } 
+
 
 }
 
 
 // Create function that makes a manual black move (without drag & drop)
 
-function blackMove () {
+// function blackMove () {
 
-  diceRolled = true;
+//   diceValues = roll_dice();
 
-  var targetPositioner = {};
-  var targetPositionerChosen = false;
+//   $('#die0 span').text(diceValues[0]);      
+//   $('#die1 span').text(diceValues[1]);
 
-  var targetChip = {};
-  var targetChipChosen = false;
+//   diceRolled = true;
 
-  $('.chip').mouseenter(
-    function () {
-      if(diceRolled && !targetChipChosen) {
-        $(this).css('cursor', 'pointer');
-      }
-    }
-  );
+//   var targetPositioner = {};
+//   var targetPositionerChosen = false;
 
- $('.chip').mouseleave(
-    function () {
-      if(diceRolled && !whiteTurn) {
-        $(this).css('cursor', 'auto');
-      }
-    }
-  );
+//   var targetChip = {};
+//   var targetChipChosen = false;
 
-  $('.chip').click(
-    function() {
-      if(diceRolled && !targetChipChosen) {
-        $(this).effect( "pulsate", {times:1}, 1000 );
-        targetChip = $(this);
-        setTimeout(
-          function() {
-            targetChipChosen = true;
-          },100
-        );
-      }
-    }
-  );
+//   $('.chip').mouseenter(
+//     function () {
+//       if(diceRolled && !targetChipChosen) {
+//         $(this).css('cursor', 'pointer');
+//       }
+//     }
+//   );
 
-  $('.midTri').mouseenter(
-    function() {
-      if(targetChipChosen && !targetPositionerChosen) {
-        $(this).css('cursor', 'pointer');
-      }
-    }
-  );
+//  $('.chip').mouseleave(
+//     function () {
+//       if(diceRolled && !whiteTurn) {
+//         $(this).css('cursor', 'auto');
+//       }
+//     }
+//   );
 
- $('.midTri').mouseleave(
-    function() {
-      if(diceRolled && !whiteTurn) {
-        $(this).css('cursor', 'auto');
-      }
-    }
-  );
+//   $('.chip').click(
+//     function() {
+//       if(diceRolled && !targetChipChosen) {
+//         $(this).effect( "pulsate", {times:1}, 1000 );
+//         targetChip = $(this);
+//         setTimeout(
+//           function() {
+//             targetChipChosen = true;
+//           },100
+//         );
+//       }
+//     }
+//   );
 
-  $('.midTri').click(function() {
-    if(targetChipChosen && !targetPositionerChosen) {
-      $(this).effect( "pulsate", {times:1}, 1000 );
-      targetPositioner = $(this).find('.positioner');
-      targetPositionerChosen = true;
-    }  
-  });
+//   $('.midTri').mouseenter(
+//     function() {
+//       if(targetChipChosen && !targetPositionerChosen) {
+//         $(this).css('cursor', 'pointer');
+//       }
+//     }
+//   );
+
+//  $('.midTri').mouseleave(
+//     function() {
+//       if(diceRolled && !whiteTurn) {
+//         $(this).css('cursor', 'auto');
+//       }
+//     }
+//   );
+
+//   $('.midTri').click(function() {
+//     if(targetChipChosen && !targetPositionerChosen) {
+//       $(this).effect( "pulsate", {times:1}, 1000 );
+//       targetPositioner = $(this).find('.positioner');
+//       targetPositionerChosen = true;
+//     }  
+//   });
 
 
-  // Move chip and update its position
+//   // Move chip and update its position
 
-  $('#leftEdge').click(function() {
+//   $('#leftEdge').click(function() {
 
-    $(targetChip).detach().appendTo(targetPositioner);
+//     $(targetChip).detach().appendTo(targetPositioner);
 
-    var targetChipNum = $(targetChip)[0].id.replace("chip", "");
-    var targetPositionerNum = $(targetPositioner)[0].id.replace("positioner", "");
-    chips[targetChipNum].position = targetPositionerNum;
+//     var targetChipNum = $(targetChip)[0].id.replace("chip", "");
+//     var targetPositionerNum = $(targetPositioner)[0].id.replace("positioner", "");
+//     chips[targetChipNum].position = targetPositionerNum;
 
-    console.log('targetChipNum: ' + targetChipNum);
-    console.log('targetPositionerNum: ' + targetPositionerNum);
+//     console.log('targetChipNum: ' + targetChipNum);
+//     console.log('targetPositionerNum: ' + targetPositionerNum);
 
-    targetChipChosen = false;
-    targetPositionerChosen = false;
+//     targetChipChosen = false;
+//     targetPositionerChosen = false;
 
-        for(k=0; k<15; k++) {
-          if(chips[k].position == targetPositionerNum) {
-            $('#chip' + k).detach().appendTo('#barForWhite');
-            chips[k].position = -1;
-          }  
-        }  
+//         for(k=0; k<15; k++) {
+//           if(chips[k].position == targetPositionerNum) {
+//             $('#chip' + k).detach().appendTo('#barForWhite');
+//             chips[k].position = -1;
+//           }  
+//         }  
 
-    // console.log('chip is ' + targetChipNum);
-    // console.log('positioner is ' + targetPositionerNum);
-    // console.log('new position of chip ' + targetChipNum + ' is ' +chips[targetChipNum].position);
+//     // console.log('chip is ' + targetChipNum);
+//     // console.log('positioner is ' + targetPositionerNum);
+//     // console.log('new position of chip ' + targetChipNum + ' is ' +chips[targetChipNum].position);
     
-  });
+//   });
 
-  $('#rightEdge').click(function() {
-    diceRolled = false;
-    whiteTurn = true;
-    targetChipChosen = true;
-    targetPositionerChosen = true;
-  });
+//   $('#rightEdgeMessage').click(function() {
+//     diceRolled = false;
+//     whiteTurn = true;
+//     targetChipChosen = true;
+//     targetPositionerChosen = true;
+//   });
 
-} 
+// } 
 
 
 //Drag & drop black move
 
+
 function blackMoveDragDrop () {
 
+  diceValues = roll_dice();
+
+  $('#die0 span').text(diceValues[0]);      
+  $('#die1 span').text(diceValues[1]);
+
+  $('.dice').css('cursor', 'auto');
+
   diceRolled = true;
+
+  $('#rightEdgeMessage').css('cursor', 'pointer');
 
   var targetPositioner = {};
   var targetChip = {};
@@ -539,49 +634,71 @@ function blackMoveDragDrop () {
     }
   );
 
-  $('.midTri').on('dragenter', 
+  $('.midTri, #homeForBlack').on('dragenter', 
 
-    function() { 
+    function() {
 
-      event.preventDefault();      
+      if( !attemptToMoveWhite ) { 
 
-      if( $(event.target)[0].id.replace('midTri', '') != targetChipNum ) {
+        // event.preventDefault(); 
 
-        var numWhites = 0;
-        var blocked = 0;
-        for(k=0; k<15; k++) {
-          if( chips[k].position == $(event.target)[0].id.replace('midTri', '') ) {
-            numWhites = numWhites + 1;
-          }
-        }
-         if(numWhites>1) {
-          blocked = 1;
-        }
-
-        if(!blocked) {
+        if(event.target == $('#homeForBlack')) {
+          event.preventDefault();
           $(event.target).addClass('dropZone');
-        }
-      }
+        } else {     
 
+            if( $(event.target)[0].id.replace('midTri', '') != targetChipNum ) {
+
+              var numWhites = 0;
+              var blocked = 0;
+              for(k=0; k<15; k++) {
+                if( chips[k].position == $(event.target)[0].id.replace('midTri', '') ) {
+                  numWhites = numWhites + 1;
+                }
+              }
+               if(numWhites>1) {
+                blocked = 1;
+              }
+
+              if(!blocked) {        
+                event.preventDefault(); 
+                $(event.target).addClass('dropZone');
+               }
+            }  
+          }
+      }  
+    } 
+  );
+
+  $('.midTri, #homeForBlack').on('dragover', 
+    function() {
+      if( $(event.target).hasClass('dropZone')) { 
+        event.preventDefault();
+      }        
     }
   );
 
-  $('.midTri').on('dragover', 
-    function() {  
-      event.preventDefault();        
-    }
-  );
-
-  $('.midTri').on('dragleave', 
+  $('.midTri, #homeForBlack').on('dragleave', 
     function() {  
       $(event.target).removeClass('dropZone');
     }
   );
 
-  $('.blackChip').on('dragstart', 
-    function() {      
-      targetChip = event.target;
-      targetChipNum = $(targetChip)[0].id.replace("chip", "");
+  var attemptToMoveWhite = false;
+  $('.chip').on('dragstart', 
+    function() {
+      attemptToMoveWhite = false;
+      if( $(event.target).hasClass('blackChip') ) { 
+
+        // event.preventDefault();
+        // $('body').css('cursor', 'move');  
+        // event.dataTransfer.effectAllowed = "move";
+
+        targetChip = event.target;
+        targetChipNum = $(targetChip)[0].id.replace("chip", "");
+      } else {
+          attemptToMoveWhite = true;
+        }
     }
   );
 
@@ -589,12 +706,15 @@ function blackMoveDragDrop () {
     function() {  
       event.preventDefault();
       $(event.target).addClass('dragged');     
-      $('.midTri').addClass('disableChildEvents');  
+      $('.midTri, #homeForBlack').addClass('disableChildEvents');
+
     }
   );
 
   $('.midTri').on('drop',  
     function() { 
+
+      if(!attemptToMoveWhite) {
 
         event.preventDefault();
 
@@ -602,45 +722,76 @@ function blackMoveDragDrop () {
 
         targetPositioner = $(event.target).find('.positioner');
 
-        var placeInside = targetPositioner.find('.ballHolder');
+        var targetChipNum = $(targetChip)[0].id.replace("chip", "");
+        var targetPositionerNum = $(targetPositioner)[0].id.replace("positioner", "");
 
-        if( $(event.target).hasClass('dropZone') ) {  
-        
-          if( $(targetPositioner).hasClass('positionerTop') ) {
-            $(targetChip).detach().appendTo(targetPositioner);
-          } else {
-            $(targetChip).detach().appendTo(placeInside);
-            }
+        var placeInside = {};
+        var numBlacksTest = 0;
+        var full = 0;
+        for(i=15; i<30; i++) {
+          if( chips[i].position == targetPositionerNum ) {
+            numBlacksTest = numBlacksTest + 1;
+          }
+        }
+        console.log('numBlacks is: ' + numBlacksTest);
+        if(numBlacksTest>=5) {
+          full = 1;        
+          console.log('full is: ' + full);
+        }
+        if(!full) {
+          placeInside = $(targetPositioner.find('.chipHolder'));
+        } else {
+            placeInside = $(targetPositioner.find('.excessChipHolder'));
+          }
 
-          var targetChipNum = $(targetChip)[0].id.replace("chip", "");
-          var targetPositionerNum = $(targetPositioner)[0].id.replace("positioner", "");
+        if( $(event.target).hasClass('dropZone') ) { 
+
+          $(targetChip).detach().appendTo(placeInside);
           chips[targetChipNum].position = targetPositionerNum;
-
-          console.log('targetChipNum: ' + targetChipNum);
-          console.log('targetPositionerNum: ' + targetPositionerNum);
-
-              for(k=0; k<15; k++) {
-                if(chips[k].position == targetPositionerNum) {
-                  $('#chip' + k).detach().appendTo('#barForWhite');
-                  chips[k].position = -1;
-                }  
-              }
-        } 
+        
+          for(k=0; k<15; k++) {
+            if(chips[k].position == targetPositionerNum) {
+              $('#chip' + k).detach().appendTo('#barForWhite');
+              chips[k].position = -1;
+            }  
+          }
+        }
+      }          
     }      
+  );
+
+  $('#homeForBlack').on('drop',  
+    function() { 
+      $(targetChip).css({
+        'border-radius': '25%',
+        'height': '1.225vw',
+        'background-image': 'none',
+        'background': 'radial-gradient(black, #383434)'
+      });
+      $(targetChip).detach().appendTo('#homeForBlack');
+    }
   );
 
   $(document).on('dragend', 
     function() {      
-      $('.midTri').removeClass('disableChildEvents dropZone');    
+      $('.midTri, #homeForBlack').removeClass('disableChildEvents dropZone');
+      $(targetChip).removeClass('dragged');    
     }
   );
 
 
 // End black turn
 
-  $('#rightEdge').click(function() {
-    diceRolled = false;
-    whiteTurn = true;
+  $('#rightEdgeMessage').unbind().click(function() { 
+    if(!whiteTurn && diceRolled) {
+      $('#die0 span').text('-');      
+      $('#die1 span').text('-');    
+      whiteTurn = true;
+      setTimeout(function(){
+        whiteMove();
+        $('#rightEdgeMessage').css('cursor', 'auto'); 
+      }, 1000);
+    }
   });
 
 } /*End the drag & drop move*/
@@ -1223,7 +1374,7 @@ function createArrayofLegitWhiteMoves () {
       }
     }
 
-// If no legit moves, then check if any on the bar that can come in to use some of the dice
+// If no legit moves, then check if any on the bar that can come in to use at least some of the dice
 
   var chipsOnBar = [];
   if(legitMoves.length === 0 && onBar === 1) {
@@ -1241,24 +1392,58 @@ function createArrayofLegitWhiteMoves () {
           numBlacks = numBlacks + 1;
         }
       }
-      console.log('i is ' + i + ' and numBlacks is ' + numBlacks);
       if(numBlacks>1) {
         blocked.push(i);
       }
     }
 
-    if( $.inArray((diceValues[0]-1), blocked) == -1 ) {
-      var inDestination = diceValues[0]-1;
-      $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination + ' ' + '.ballHolder');
-      chips[chipsOnBar[0]].position = inDestination;            
-      chipsOnBar.splice(0,1);
+    console.log('blocked:' + blocked);
+
+    if( $.inArray((diceValues[0] - 1 ), blocked) == -1 ) {
+  
+      var inDestination = diceValues[0] - 1;
+  
+      $('#chip' + chipsOnBar[0]).effect( "pulsate", {times:3}, 3000 );
+  
+      setTimeout(
+        function() {
+          $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination + ' ' + '.chipHolder');
+        }, 3000);
+
+      chips[chipsOnBar[0]].position = inDestination; 
+
+      for(k=15; k<30; k++) {
+        if(chips[k].position == inDestination) {
+          $('#chip' + k).detach().appendTo('#barForBlack');
+          chips[k].position = 100;
+        }  
+      }
+
     }
 
-    if( $.inArray((diceValues[1]-1), blocked) == -1 ) {
-      var inDestination2 = diceValues[1]-1;
-      $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination2 + ' ' + '.ballHolder');
-      chips[chipsOnBar[0]].position = inDestination2;            
-      chipsOnBar.splice(0,1);
+    if( $.inArray((diceValues[1] - 1 ), blocked) == -1 ) {
+
+      var inDestination2 = diceValues[1] - 1;
+
+      setTimeout(
+        function() {      
+          $('#chip' + chipsOnBar[1]).effect( "pulsate", {times:3}, 3000 );
+        }, 3000);
+
+      setTimeout(
+        function() {
+          $('#chip' + chipsOnBar[1]).detach().appendTo('#positioner' + inDestination2 + ' ' + '.chipHolder');
+        }, 6000);
+      
+      chips[chipsOnBar[1]].position = inDestination2;  
+
+      for(k=15; k<30; k++) {
+        if(chips[k].position == inDestination2) {
+          $('#chip' + k).detach().appendTo('#barForBlack');
+          chips[k].position = 100;
+        }  
+      }
+
     }
     
   }
@@ -1276,14 +1461,17 @@ function createArrayofLegitWhiteMoves () {
   console.log("# legitMoves is " + legitMoves.length);
 
 
-  $('#topEdge').click(function() {
+  $('#topEdge').unbind().click(function() {
+    console.log('Blacks are at: ');
     for(i=15; i<30; i++) {
       console.log(chips[i].position);
     }
+    console.log('Whites are at: ');    
+    for(i=0; i<15; i++) {
+      console.log(chips[i].position);
+    }
+
   });
-
-
-
 
 
 } /*End entire JS file*/
