@@ -223,7 +223,7 @@ function makeRandomWhiteMove () {
     if (destinationNum > 23) {
       $('#chip' + chipToMove).css({
         'border-radius': '25%',
-        'height': '1.1vw',
+        'height': '1vw',
         'background-image': 'none',
         'background': 'radial-gradient(#ECEAD0, white)'
       });
@@ -774,7 +774,7 @@ function blackMoveDragDrop () {
 
         $(targetChip).css({
           'border-radius': '25%',
-          'height': '1.1vw',
+          'height': '1vw',
           'background-image': 'none',
           'background': 'radial-gradient(black, #383434)'
         });
@@ -1201,49 +1201,49 @@ function createArrayofLegitWhiteMoves () {
     var chipsAfterMovePreview = deepCopy(chips);
     var includesOff = false;
 
-    if( moves[i].die1Chip != -1 ) {
+    if( moves[i].die1Chip !== -1 ) {
       if( chips[moves[i].die1Chip].die1CanDo == 9 ) {
         includesOff = true;
       }
     } 
 
-    if( moves[i].die2Chip != -1 ) {
+    if( moves[i].die2Chip !== -1 ) {
       if( chips[moves[i].die2Chip].die2CanDo == 9 ) {
         includesOff = true;
       }
     }
 
-    if( moves[i].dieBothChip != -1 ) {
+    if( moves[i].dieBothChip !== -1 ) {
       if( chips[moves[i].dieBothChip].dieBothCanDo == 9 ) {
         includesOff = true;
       }
     }
 
-    if( (moves[i].dieBothChip != -1) && (moves[i].die1Chip != -1) ) {
+    if( (moves[i].dieBothChip !== -1) && (moves[i].die1Chip != -1) ) {
       if( chips[moves[i].die1Chip].dieBothCanDo == 9 ) {
         includesOff = true;
       }
     }
 
-    if( moves[i].die3Chip != -1 ) {
+    if( moves[i].die3Chip !== -1 ) {
       if( chips[moves[i].die3Chip].die3CanDo == 9 ) {
         includesOff = true;
       }
     } 
 
-    if( moves[i].die4Chip != -1 ) {
+    if( moves[i].die4Chip !== -1 ) {
       if( chips[moves[i].die4Chip].die4CanDo == 9 ) {
         includesOff = true;
       }
     }
 
-    if( moves[i].die3xChip != -1 ) {
+    if( moves[i].die3xChip !== -1 ) {
       if( chips[moves[i].die3xChip].die3xCanDo == 9 ) {
         includesOff = true;
       }
     }
 
-    if( moves[i].die4xChip != -1 ) {
+    if( moves[i].die4xChip !== -1 ) {
       if( chips[moves[i].die4xChip].die4xCanDo == 9 ) {
         includesOff = true;
       }
@@ -1256,31 +1256,31 @@ function createArrayofLegitWhiteMoves () {
       // console.log('Found an off move that is: ');
       // console.log(moves[i]);
 
-      if( moves[i].die1Chip != -1 ) {
+      if( moves[i].die1Chip !== -1 ) {
         chipsAfterMovePreview[moves[i].die1Chip].position = chipsAfterMovePreview[moves[i].die1Chip].position + diceValues[0];
       }
 
-      if( moves[i].die2Chip != -1 ) {
+      if( moves[i].die2Chip !== -1 ) {
         chipsAfterMovePreview[moves[i].die2Chip].position = chipsAfterMovePreview[moves[i].die2Chip].position + diceValues[1];
       }
 
-      if( moves[i].dieBothChip != -1 ) {
+      if( moves[i].dieBothChip !== -1 ) {
         chipsAfterMovePreview[moves[i].dieBothChip].position = chipsAfterMovePreview[moves[i].dieBothChip].position + diceValues[0] + diceValues[1];
       }
 
-      if( moves[i].die3Chip != -1 ) {
+      if( moves[i].die3Chip !== -1 ) {
         chipsAfterMovePreview[moves[i].die3Chip].position = chipsAfterMovePreview[moves[i].die3Chip].position + diceValues[0];
       }
 
-      if( moves[i].die4Chip != -1 ) {
+      if( moves[i].die4Chip !== -1 ) {
         chipsAfterMovePreview[moves[i].die4Chip].position = chipsAfterMovePreview[moves[i].die4Chip].position + diceValues[0];
       }
 
-      if( moves[i].die3xChip != -1 ) {
+      if( moves[i].die3xChip !== -1 ) {
         chipsAfterMovePreview[moves[i].die3xChip].position = chipsAfterMovePreview[moves[i].die3xChip].position + 3*diceValues[0];
       }
 
-      if( moves[i].die4xChip != -1 ) {
+      if( moves[i].die4xChip !== -1 ) {
         chipsAfterMovePreview[moves[i].die4xChip].position = chipsAfterMovePreview[moves[i].die4xChip].position + 4*diceValues[0];
       }
 
@@ -1515,7 +1515,9 @@ var uniqueBadOffMoves = unique(badOffMoves);
           $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination + ' ' + '.chipHolder');
         }, 3000);
 
-      chips[chipsOnBar[0]].position = inDestination; 
+      chips[chipsOnBar[0]].position = inDestination;
+
+      chipsOnBar.splice(0,1); 
 
       for(k=15; k<30; k++) {
         if(chips[k].position == inDestination) {
@@ -1523,34 +1525,36 @@ var uniqueBadOffMoves = unique(badOffMoves);
           chips[k].position = 100;
         }  
       }
-
     }
 
-    if( $.inArray((diceValues[1] - 1 ), blocked) == -1 ) {
 
-      var inDestination2 = diceValues[1] - 1;
+      if(chipsOnBar.length !== 0) {
 
-      setTimeout(
-        function() {      
-          $('#chip' + chipsOnBar[1]).effect( "pulsate", {times:3}, 3000 );
-        }, 3000);
+      if( $.inArray((diceValues[1] - 1 ), blocked) == -1 ) {
 
-      setTimeout(
-        function() {
-          $('#chip' + chipsOnBar[1]).detach().appendTo('#positioner' + inDestination2 + ' ' + '.chipHolder');
-        }, 6000);
-      
-      chips[chipsOnBar[1]].position = inDestination2;  
+        var inDestination2 = diceValues[1] - 1;
 
-      for(k=15; k<30; k++) {
-        if(chips[k].position == inDestination2) {
-          $('#chip' + k).detach().appendTo('#barForBlack');
-          chips[k].position = 100;
-        }  
+        setTimeout(
+          function() {      
+            $('#chip' + chipsOnBar[0]).effect( "pulsate", {times:3}, 3000 );
+          }, 3000);
+
+        setTimeout(
+          function() {
+            $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination2 + ' ' + '.chipHolder');
+          }, 6000);
+        
+        chips[chipsOnBar[0]].position = inDestination2;  
+
+        for(k=15; k<30; k++) {
+          if(chips[k].position == inDestination2) {
+            $('#chip' + k).detach().appendTo('#barForBlack');
+            chips[k].position = 100;
+          }  
+        }
+
       }
-
     }
-    
   }
 
   function indexOfLowest(a) {
