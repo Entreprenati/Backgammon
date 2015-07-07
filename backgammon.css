@@ -6,8 +6,15 @@
 /*Style the board*/
 
 #boardWrapper {
-  width: 100vw;
-  height: 100vh;
+  width: 90vw;
+  height: 90vh;
+  position: absolute;
+    left: 50%;
+    top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  background-color: #864218;
 }
 
 #topEdge {
@@ -33,12 +40,15 @@
 
 #homeForWhite {
   width: 3.8vw;
-  height: 45%;
+  height: 46.5%;
   position: absolute;
     left: 49.5%;
-    top: 1%;
+    top: 2%;
   border-radius: 5%;
-  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+      -ms-transform: translateX(-50%);
+          transform: translateX(-50%);
+  background: -webkit-radial-gradient(#ECEAD0, #864218);
   background: radial-gradient(#ECEAD0, #864218);
   border: .2vw #631F07 solid;
 /*  background-blend-mode: hard-light;*/
@@ -56,13 +66,18 @@
 
 #homeForBlack {
   width: 3.8vw;
-  height: 45%;
+  height: 46.5%;
   position: absolute;
     left: 49.5%;
-    bottom: 1%;
-  transform: translateX(-50%);   
+    bottom: 2%;
+  -webkit-transform: translateX(-50%);
+      -ms-transform: translateX(-50%);
+          transform: translateX(-50%);   
   border-radius: 5%;
-  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+      -ms-transform: translateX(-50%);
+          transform: translateX(-50%);
+  background: -webkit-radial-gradient(#ECEAD0, #864218);
   background: radial-gradient(#ECEAD0, #864218); 
   border: .2vw #631F07 solid;  
 }
@@ -71,6 +86,7 @@
   width: 42.5%;
   height: 95%;
   float: left;
+  background-color: yellow;
 }
 
 #midBar {
@@ -85,7 +101,9 @@
   width: 3.8vw;
   position: absolute;
     left: 50%;
-  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+      -ms-transform: translateX(-50%);
+          transform: translateX(-50%);
 }
 
 .dice {
@@ -94,7 +112,9 @@
   position: absolute;
     left: 50%;
     top: 50%;
-  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
 }
 
 #die0, #die1 {
@@ -122,7 +142,9 @@
   position: absolute;
     left: 50%;
     top: 50%;
-  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
   font-weight: bold;
   font-size: 4vw;
 }
@@ -132,13 +154,16 @@
   position: absolute;
     left: 50%;
     bottom: 2.5%;
-  transform: translateX(-50%);   
+  -webkit-transform: translateX(-50%);
+      -ms-transform: translateX(-50%);
+          transform: translateX(-50%);   
 }
 
 #rightSide {
   width: 42.5%;
   height: 95%;
   float: left;
+  background-color: yellow;
 }
 
 #rightEdge {
@@ -208,13 +233,21 @@ background-size: cover;*/
 }
 
 .leftTriUp {
- transform: translateX(-100%) rotate(7deg);
- transform-origin: bottom right;
+ -webkit-transform: translateX(-100%) rotate(7deg);
+     -ms-transform: translateX(-100%) rotate(7deg);
+         transform: translateX(-100%) rotate(7deg);
+ -webkit-transform-origin: bottom right;
+     -ms-transform-origin: bottom right;
+         transform-origin: bottom right;
 }
 
 .rightTriUp {
-  transform: translateX(100%) rotate(-7deg);
-  transform-origin: bottom left;
+  -webkit-transform: translateX(100%) rotate(-7deg);
+      -ms-transform: translateX(100%) rotate(-7deg);
+          transform: translateX(100%) rotate(-7deg);
+  -webkit-transform-origin: bottom left;
+      -ms-transform-origin: bottom left;
+          transform-origin: bottom left;
 }
 
 /*Create down pointing triangles*/
@@ -248,13 +281,21 @@ background-size: cover;*/
 }
 
 .leftTriDown {
- transform: translateX(-100%) rotate(-7deg);
- transform-origin: top right;
+ -webkit-transform: translateX(-100%) rotate(-7deg);
+     -ms-transform: translateX(-100%) rotate(-7deg);
+         transform: translateX(-100%) rotate(-7deg);
+ -webkit-transform-origin: top right;
+     -ms-transform-origin: top right;
+         transform-origin: top right;
 }
 
 .rightTriDown {
-  transform: translateX(100%) rotate(7deg);
-  transform-origin: top left;
+  -webkit-transform: translateX(100%) rotate(7deg);
+      -ms-transform: translateX(100%) rotate(7deg);
+          transform: translateX(100%) rotate(7deg);
+  -webkit-transform-origin: top left;
+      -ms-transform-origin: top left;
+          transform-origin: top left;
 }
 
 .positioner {
@@ -268,7 +309,9 @@ background-size: cover;*/
   position: absolute;
     bottom: 0;
     left: 50%;  
-  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);  
+      -ms-transform: translateX(-50%);  
+          transform: translateX(-50%);
 }
 
 .positionerBottom .chipHolder {
@@ -288,7 +331,9 @@ background-size: cover;*/
   position: absolute;
     top: 0;
     left: 50%;
-  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+      -ms-transform: translateX(-50%);
+          transform: translateX(-50%);
 }
 
 .positionerTop .chipHolder {
@@ -324,14 +369,12 @@ background-size: cover;*/
 }
 
 .grabbable {
-  cursor: -webkit-grab;  
-  cursor: -moz-grab;
+  cursor: -webkit-grab;
   cursor: -ms-grab;
 }
 
 .grabbed {
   cursor: -webkit-grabbing;  
-  cursor: -moz-grabbing;  
   cursor: -ms-grabbing;
 }
 
@@ -352,7 +395,9 @@ background-size: cover;*/
   width: 4vw;
   position: absolute;
     top: 50%;
-  transform: translateY(-50%);  
+  -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+          transform: translateY(-50%);  
 }
 
 #rightEdgeMessage span {  
@@ -362,7 +407,9 @@ background-size: cover;*/
   position: absolute;
     left: 50%;
     top: 50%;
-  transform: translate(-35%, -50%);
+  -webkit-transform: translate(-35%, -50%);
+      -ms-transform: translate(-35%, -50%);
+          transform: translate(-35%, -50%);
   font-weight: bold;
   font-size: 2.5vw;
   border: .2vw red solid;

@@ -223,7 +223,7 @@ function makeRandomWhiteMove () {
     if (destinationNum > 23) {
       $('#chip' + chipToMove).css({
         'border-radius': '25%',
-        'height': '1.225vw',
+        'height': '1.1vw',
         'background-image': 'none',
         'background': 'radial-gradient(#ECEAD0, white)'
       });
@@ -248,12 +248,20 @@ function makeRandomWhiteMove () {
       }
       chips[chipToMove].position = destinationNum;
 
+      numBlacks = 0;
+      var blotted = -1;
       for(k=15; k<30; k++) {
         if(chips[k].position == destinationNum) {
-          $('#chip' + k).detach().appendTo('#barForBlack');
-          chips[k].position = 100;
+          blotted = k;
+          numBlacks++;
         }
       }
+
+      if(numBlacks === 1) {
+        $('#chip' + blotted).detach().appendTo('#barForBlack');
+        chips[blotted].position = 100;
+      }
+          
   }
 
   if(legitMoves.length !== 0) {
@@ -453,13 +461,13 @@ function makeRandomWhiteMove () {
       $('#die1 span').text('-');
       $('#yourTurn').trigger('play');
       if (firstBlackMove) {
-        confirm("Click dice to roll; then drag & drop your moves; then hit 'DONE'");
+        confirm("Click dice to roll; then drag & drop your moves (honor system, no cheating please); then hit 'DONE'");
         firstBlackMove = false; 
       }
       $('.dice').css('cursor', 'pointer');
       whiteTurn = false;
       diceRolled = false;
-    }, delayMove + 1500);  
+    }, delayMove + 2000);  
 
   }
 
@@ -714,7 +722,7 @@ function blackMoveDragDrop () {
   $('.midTri').on('drop',  
     function() { 
 
-      if(!attemptToMoveWhite) {
+      if(!attemptToMoveWhite && !whiteTurn && diceRolled) {
 
         event.preventDefault();
 
@@ -760,15 +768,19 @@ function blackMoveDragDrop () {
     }      
   );
 
-  $('#homeForBlack').on('drop',  
+  $('#homeForBlack').on('drop', 
     function() { 
-      $(targetChip).css({
-        'border-radius': '25%',
-        'height': '1.225vw',
-        'background-image': 'none',
-        'background': 'radial-gradient(black, #383434)'
-      });
-      $(targetChip).detach().appendTo('#homeForBlack');
+      if(!attemptToMoveWhite && !whiteTurn && diceRolled) {
+
+        $(targetChip).css({
+          'border-radius': '25%',
+          'height': '1.1vw',
+          'background-image': 'none',
+          'background': 'radial-gradient(black, #383434)'
+        });
+        $(targetChip).detach().appendTo('#homeForBlack');          
+        chips[targetChipNum].position = 200;
+      }
     }
   );
 
@@ -868,7 +880,7 @@ function createArrayofLegitWhiteMoves () {
   }
 
 
-  // Create white bothDie posabilities
+  // Create white dieBoth posabilities
 
   for( i = 0; i < 15; i++ ) {
     if( (chips[i].position > 23) ||  
@@ -966,8 +978,8 @@ function createArrayofLegitWhiteMoves () {
   } else {    
       for( i = 0; i < 15; i++ ) {
         if( (chips[i].position > 23) || 
-            (chips[i].die1CanDo === 0) || 
-            (chips[i].dieBothCanDo === 0) || 
+            (chips[i].die1CanDo === 0) ||      
+            (chips[i].dieBothCanDo === 0) ||
             (chips[i].die1CanDo === 9) || 
             (chips[i].dieBothCanDo === 9) ) {chips[i].die3xCanDo = 0;
         } else if( (chips[i].position + 3*diceValues[0]) > 23 ) {chips[i].die3xCanDo = 9; 
@@ -1166,28 +1178,27 @@ function createArrayofLegitWhiteMoves () {
   // Remove illegit off-board white moves
 
   function deepCopy (arr) {
-      var out = [];
-      for (var i = 0, len = arr.length; i < len; i++) {
+      var clone = [];
+      for (var i = 0; i<arr.length; i++) {
           var item = arr[i];
           var obj = {};
           for (var k in item) {
               obj[k] = item[k];
           }
-          out.push(obj);
+          clone.push(obj);
       }
-      return out;
+      return clone;
   }
 
   var badOffMoves = [];
 
-  console.log("# moves before pruning is " + moves.length);
+  console.log("# moves before pruning bad off moves is " + moves.length);
 
   var numOffMoves = 0;
    
   for(i = 0; i<moves.length; i++) {
 
     var chipsAfterMovePreview = deepCopy(chips);
-    // var chipsAfterMovePreview = $.extend(true, [], chips);    
     var includesOff = false;
 
     if( moves[i].die1Chip != -1 ) {
@@ -1204,6 +1215,12 @@ function createArrayofLegitWhiteMoves () {
 
     if( moves[i].dieBothChip != -1 ) {
       if( chips[moves[i].dieBothChip].dieBothCanDo == 9 ) {
+        includesOff = true;
+      }
+    }
+
+    if( (moves[i].dieBothChip != -1) && (moves[i].die1Chip != -1) ) {
+      if( chips[moves[i].die1Chip].dieBothCanDo == 9 ) {
         includesOff = true;
       }
     }
@@ -1267,28 +1284,51 @@ function createArrayofLegitWhiteMoves () {
         chipsAfterMovePreview[moves[i].die4xChip].position = chipsAfterMovePreview[moves[i].die4xChip].position + 4*diceValues[0];
       }
 
-      var badoffMove = false;
+      var badOffMove = false;
       for( k = 0; k < 15; k++ ) {
         if( chipsAfterMovePreview[k].position < 18) {
-          badoffMove = true;         
+          badOffMove = true;         
         }
       }
 
-      if( badoffMove ) {badOffMoves.push(i);} 
+      if( badOffMove ) {badOffMoves.push(i);} 
     }
   }  
 
   console.log('numOffMoves is ' + numOffMoves);
   console.log('badOffMoves.length is ' + badOffMoves.length);
 
-  for (l = badOffMoves.length -1; l >= 0; l--) {
-   moves.splice(badOffMoves[l], 1);  
+
+// Remove any duplicates
+
+function unique(a) {
+    var seen = {};
+    var out = [];
+    var j = 0;
+    for(var i = 0; i < a.length; i++) {
+         var item = a[i];
+         if(seen[item] !== 1) {
+               seen[item] = 1;
+               out[j++] = item;
+         }
+    }
+    return out;
+}
+
+var uniqueBadOffMoves = unique(badOffMoves); 
+
+ console.log('uniqueBadOffMoves.length is ' + uniqueBadOffMoves.length);
+  
+// Purge moves of badOffMoves
+
+  for (l = uniqueBadOffMoves.length -1; l >= 0; l--) {
+   moves.splice(uniqueBadOffMoves[l], 1);  
   }
 
-  console.log("# moves after pruning is " + moves.length);
+  console.log("# moves after pruning of badOffMoves is " + moves.length);
 
 
-  // Remove illegit on-bar white moves
+  // Remove illegit on-bar white moves (but this kills move in which some but not all bar chips come in, so I add those back in later down in the code)
 
   var badOnBarMoves = [];
 
@@ -1334,7 +1374,7 @@ function createArrayofLegitWhiteMoves () {
 
       var badOnBarMove = false;
       for( k = 0; k < 15; k++ ) {
-        if( chipsAfterMovePreview2[k].position === -1) {
+        if( chipsAfterMovePreview2[k].position === -1 ) {
           badOnBarMove = true;         
         }
       }  
@@ -1343,11 +1383,76 @@ function createArrayofLegitWhiteMoves () {
 
     }
 
-      for (l = badOnBarMoves.length -1; l >= 0; l--) {
-        moves.splice(badOnBarMoves[l], 1);  
+      var uniqueBadOnBarMoves = unique(badOnBarMoves); 
+
+      for (l = uniqueBadOnBarMoves.length -1; l >= 0; l--) {
+        moves.splice(uniqueBadOnBarMoves[l], 1);  
       }
      
   }
+
+// Remove blocked die1Move & die2Move combination moves (faux dieBothMoves)
+
+  // var badFauxBothMoves = [];
+
+  // for(i = 0; i<moves.length; i++) {
+
+  //   var chipsAfterMovePreview3 = deepCopy(chips);
+  //   // console.log(chipsAfterMovePreview3);
+  //   var includesFaux = false;
+
+  //   if( moves[i].die1Chip != -1 ) {
+  //     if( (moves[i].die1Chip != -1) && (moves[i].die2Chip != -1) && (moves[i].die4xChip == -1)) {
+  //       includesFaux = true;
+  //     }
+  //   }  
+
+  //   if( includesFaux ) {
+  //     chipsAfterMovePreview3[moves[i].die1Chip].position = chipsAfterMovePreview3[moves[i].die1Chip].position + diceValues[0] + diceValues[1];
+  //   }
+
+      // Check if blocked at position of die1 + die2 or if die1 is an off move
+
+  //     whoThere = [];         
+  //     numBlacks = 0;
+
+  //     var badFauxBothMove = false;
+
+  //      console.log('i is' + i);
+
+  //     for( k = 0; k < 30; k++ ) {
+  //       if( chipsAfterMovePreview3[k].position == (chipsAfterMovePreview3[moves[i].die1Chip].position) ) { 
+  //         whoThere.push(k);
+  //       }
+  //     }
+  //     numBlacks = 0;
+  //     for( k = 0; k < whoThere.length; k++ ) {
+  //       if( whoThere[k] > 14 ) { numBlacks++; 
+  //       }
+  //     }
+  //     if( numBlacks > 1) { badFauxBothMove = true;             
+  //     } 
+
+  //     if ( ((chips[moves[i].die1Chip].position + diceValues[0]) > 23) && ((chips[moves[i].die2Chip].position + diceValues[1]) > 23) ) { 
+
+  //       badFauxBothMove = true;             
+  //     }
+
+  //     if ( ((chips[moves[i].die1Chip].position + diceValues[0]) > 23) && ((chips[moves[i].die2Chip].position + diceValues[1]) <= 23) ) { 
+
+  //       badFauxBothMove = true;             
+  //     }
+
+  //     if( badFauxBothMove ) {badFauxBothMoves.push(i);} 
+
+  // } // End of big for loop  
+
+  // var uniqueBadFauxBothMoves = unique(badFauxBothMoves); 
+
+  // for (l = uniqueBadFauxBothMoves.length -1; l >= 0; l--) {
+  //   moves.splice(uniqueBadFauxBothMoves[l], 1);  
+  // }
+     
 
 
   // Create a set of par white moves (moves that have "under = 0")
@@ -1364,9 +1469,9 @@ function createArrayofLegitWhiteMoves () {
   // Create a set of legit white moves
 
   if(parMoves.length !== 0) {
-    legitMoves= parMoves;
+    legitMoves = parMoves;
   } else {
-      z = indexOfLowest(moves);
+      var z = indexOfLowest(moves);
       for (i = 0; i<moves.length; i++) {
         if (moves[i].under === moves[z].under) {
           legitMoves.push(moves[i]);
@@ -1450,8 +1555,8 @@ function createArrayofLegitWhiteMoves () {
 
   function indexOfLowest(a) {
     var lowest = 0;
-    for (var i = 1; i < a.length; i++) {
-    if (a[i].under < a[lowest].under) lowest = i;
+    for (var i = 0; i < a.length; i++) {
+    if (a[i].under < a[lowest].under) {lowest = i;}
     }
     return lowest;
   }
@@ -1472,6 +1577,50 @@ function createArrayofLegitWhiteMoves () {
     }
 
   });
+
+
+// Handle touch screens
+
+  // $('.chip').draggable();
+  // $('.midTri, #homeForBlack').droppable();
+
+
+  // $(window).on("load", function() { 
+  //   touchHandler();
+  //   $('.chip').draggable();
+  //   $('.midTri, #homeForBlack').droppable();
+  // });
+
+  // function touchHandler(event)
+  // {
+  //     var touches = event.changedTouches,
+  //         first = touches[0],
+  //         type = "";
+  //          switch(event.type)
+  //     {
+  //         case "touchstart": type = "mousedown"; break;
+  //         case "touchmove":  type="mousemove"; break;        
+  //         case "touchend":   type="mouseup"; break;
+  //         default: return;
+  //     }
+   
+  //     var simulatedEvent = document.createEvent("MouseEvent");
+  //     simulatedEvent.initMouseEvent(type, true, true, window, 1, 
+  //                               first.screenX, first.screenY, 
+  //                               first.clientX, first.clientY, false, 
+  //                               false, false, false, 0/*left*/, null);
+  //     first.target.dispatchEvent(simulatedEvent);
+  //     event.preventDefault();
+  // }
+   
+  // function init() 
+  // {
+  //     document.addEventListener("touchstart", touchHandler, true);
+  //     document.addEventListener("touchmove", touchHandler, true);
+  //     document.addEventListener("touchend", touchHandler, true);
+  //     document.addEventListener("touchcancel", touchHandler, true);    
+  // }
+
 
 
 } /*End entire JS file*/
