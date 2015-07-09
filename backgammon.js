@@ -165,6 +165,9 @@ function whiteMove() {
   $('#die0 span').text(diceValues[0]);      
   $('#die1 span').text(diceValues[1]);
 
+  console.log('Roll is: ' + diceValues[0] + ' ' + diceValues[1]);
+
+
   // var iterateTime = 0;
   // for(var c = 0; c < 7; c++) {
   //   setTimeout(fakeRoll, iterateTime);
@@ -304,27 +307,58 @@ function makeRandomWhiteMove () {
 
       console.log('DieBothMove is: ' + dieBothMove);
 
+      numBlacks = 0;
+      for( k = 15; k < 30; k++ ) {
+        if( chips[k].position == (chips[dieBothMove].position + diceValues[0]) ) { numBlacks++;
+        }
+      } 
+
       delayBlinkStart = delayBlinkStart + 3500;
       delayMove = delayBlinkStart + 3000;
 
-      setTimeout(function() {
-        $('#chip' + dieBothMove).effect( "pulsate", {times:3}, 3000 ); 
-      }, delayBlinkStart );
+      if(numBlacks < 2) {
 
-      setTimeout( function() {
-        moveChip (dieBothMove, diceValues[0]); 
-      }, delayMove);
+        setTimeout(function() {
+          $('#chip' + dieBothMove).effect( "pulsate", {times:3}, 3000 ); 
+        }, delayBlinkStart );
+
+        setTimeout( function() {
+          moveChip (dieBothMove, diceValues[0]); 
+        }, delayMove);
  
-      delayBlinkStart = delayBlinkStart + 3500;
-      delayMove = delayBlinkStart + 3000;
+        delayBlinkStart = delayBlinkStart + 3500;
+        delayMove = delayBlinkStart + 3000;
 
-      setTimeout(function() {
-        $('#chip' + dieBothMove).effect( "pulsate", {times:3}, 3000 ); 
-      }, delayBlinkStart );
+        setTimeout(function() {
+          $('#chip' + dieBothMove).effect( "pulsate", {times:3}, 3000 ); 
+        }, delayBlinkStart );
 
-      setTimeout( function() {
-        moveChip (dieBothMove, diceValues[1]); 
-      }, delayMove);
+        setTimeout( function() {
+          moveChip (dieBothMove, diceValues[1]); 
+        }, delayMove);
+
+      } else {
+
+        setTimeout(function() {
+          $('#chip' + dieBothMove).effect( "pulsate", {times:3}, 3000 ); 
+        }, delayBlinkStart );
+
+        setTimeout( function() {
+          moveChip (dieBothMove, diceValues[1]); 
+        }, delayMove);
+ 
+        delayBlinkStart = delayBlinkStart + 3500;
+        delayMove = delayBlinkStart + 3000;
+
+        setTimeout(function() {
+          $('#chip' + dieBothMove).effect( "pulsate", {times:3}, 3000 ); 
+        }, delayBlinkStart );
+
+        setTimeout( function() {
+          moveChip (dieBothMove, diceValues[0]); 
+        }, delayMove);
+
+      }
 
     }
 
@@ -461,7 +495,7 @@ function makeRandomWhiteMove () {
       $('#die1 span').text('-');
       $('#yourTurn').trigger('play');
       if (firstBlackMove) {
-        confirm("Click dice to roll; then drag & drop your moves (honor system, no cheating please); then hit 'DONE'");
+        confirm("Click dice to roll; then drag & drop your moves; then hit 'DONE'");
         firstBlackMove = false; 
       }
       $('.dice').css('cursor', 'pointer');
@@ -1388,8 +1422,13 @@ var uniqueBadOffMoves = unique(badOffMoves);
       for (l = uniqueBadOnBarMoves.length -1; l >= 0; l--) {
         moves.splice(uniqueBadOnBarMoves[l], 1);  
       }
+
+      console.log('uniqueBadOffMoves.length is ' + uniqueBadOffMoves.length);
      
   }
+
+  console.log("# badOnBarMoves is " + badOnBarMoves.length);
+  console.log("# moves after pruning of badOnBarMoves is " + moves.length);
 
 // Remove blocked die1Move & die2Move combination moves (faux dieBothMoves)
 
@@ -1565,7 +1604,7 @@ var uniqueBadOffMoves = unique(badOffMoves);
     return lowest;
   }
 
-  console.log("# moves at end is " + moves.length);
+  console.log("# moves after all pruning is " + moves.length);
   console.log("# parMoves is " + parMoves.length);
   console.log("# legitMoves is " + legitMoves.length);
 
@@ -1581,6 +1620,14 @@ var uniqueBadOffMoves = unique(badOffMoves);
     }
 
   });
+
+  $('#bottomEdge').unbind().click(
+    function() {
+      console.log(chips);
+    }
+  );  
+
+
 
 
 // Handle touch screens
@@ -1624,6 +1671,7 @@ var uniqueBadOffMoves = unique(badOffMoves);
   //     document.addEventListener("touchend", touchHandler, true);
   //     document.addEventListener("touchcancel", touchHandler, true);    
   // }
+
 
 
 
