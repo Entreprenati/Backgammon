@@ -114,14 +114,16 @@
     top: 50%;
   -webkit-transform: translate(-50%, -50%);
       -ms-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);  
+  z-index: 5000;
 }
 
 #die0, #die1 {
   position: relative;;
   height: 50%;
   border-radius: 10%; 
-  background-color: white;
+  background-color: white;  
+  z-index: 5000;
 }
 
 #die0 {

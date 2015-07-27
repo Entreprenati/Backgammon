@@ -141,6 +141,8 @@ function move (die1Chip, die2Chip, dieBothChip, die3Chip, die4Chip, die3xChip, d
   var moves = [];
   var legitMoves = [];
 
+  // window.addEventListener("load", function() { window.scrollTo(0, 1); });
+
 // PLAY THE GAME!!!
 
 // White player (computer) rolls dice and determines legit moves and stores them in an array; Computer then makes random legit moves. Other player mannually makes moves of his or her choice (on the honor system).
@@ -495,7 +497,7 @@ function makeRandomWhiteMove () {
       $('#die1 span').text('-');
       $('#yourTurn').trigger('play');
       if (firstBlackMove) {
-        confirm("Click dice to roll; then drag & drop your moves; then hit 'DONE'");
+        confirm("Click dice to roll, then drag & drop your moves (honor system), then hit 'DONE'");
         firstBlackMove = false; 
       }
       $('.dice').css('cursor', 'pointer');
@@ -668,7 +670,7 @@ function blackMoveDragDrop () {
     }
   );
 
-  $('.blackChip').mousedown(
+  $('.blackChip').on('mousedown touchstart',
     function() {
       if(diceRolled && !whiteTurn) {
         $(this).removeClass('grabbable').addClass('grabbed');
@@ -676,13 +678,11 @@ function blackMoveDragDrop () {
     }
   );
 
-  $('.midTri, #homeForBlack').on('dragenter', 
+  $('.midTri, #homeForBlack').on('dragenter touchenter', 
 
     function() {
 
       if( !attemptToMoveWhite ) { 
-
-        // event.preventDefault(); 
 
         if(event.target == $('#homeForBlack')) {
           event.preventDefault();
@@ -712,7 +712,7 @@ function blackMoveDragDrop () {
     } 
   );
 
-  $('.midTri, #homeForBlack').on('dragover', 
+  $('.midTri, #homeForBlack').on('dragover touchmove', 
     function() {
       if( $(event.target).hasClass('dropZone')) { 
         event.preventDefault();
@@ -720,15 +720,16 @@ function blackMoveDragDrop () {
     }
   );
 
-  $('.midTri, #homeForBlack').on('dragleave', 
+  $('.midTri, #homeForBlack').on('dragleave touchleave', 
     function() {  
       $(event.target).removeClass('dropZone');
     }
   );
 
   var attemptToMoveWhite = false;
-  $('.chip').on('dragstart', 
+  $('.chip').on('dragstart touchstart', 
     function() {
+
       attemptToMoveWhite = false;
       if( $(event.target).hasClass('blackChip') ) { 
 
@@ -737,19 +738,27 @@ function blackMoveDragDrop () {
         // event.dataTransfer.effectAllowed = "move";
 
         targetChip = event.target;
-        targetChipNum = $(targetChip)[0].id.replace("chip", "");
+        targetChipNum = $(targetChip)[0].id.replace("chip", "");      
       } else {
           attemptToMoveWhite = true;
         }
+
+      if( chips[targetChipNum].position === 200 && $(targetChip).hasClass('blackChip') ) {
+        $(targetChip).css({
+          'height': '3.5vw',
+          'border-radius': '100%',
+          'background-image': 'url(images/blackChip2.jpg)',
+          'background-size' : 'cover'
+        });
+      }
     }
   );
 
-  $('.blackChip').on('drag', 
+  $('.blackChip').on('drag touchmove', 
     function() {  
       event.preventDefault();
       $(event.target).addClass('dragged');     
       $('.midTri, #homeForBlack').addClass('disableChildEvents');
-
     }
   );
 
@@ -798,7 +807,9 @@ function blackMoveDragDrop () {
             }  
           }
         }
-      }          
+      } 
+      $('.midTri').removeClass('disableChildEvents dropZone');
+      $(targetChip).removeClass('dragged');
     }      
   );
 
@@ -815,6 +826,8 @@ function blackMoveDragDrop () {
         $(targetChip).detach().appendTo('#homeForBlack');          
         chips[targetChipNum].position = 200;
       }
+      $('#homeForBlack').removeClass('disableChildEvents dropZone');
+      $(targetChip).removeClass('dragged');
     }
   );
 
@@ -824,6 +837,90 @@ function blackMoveDragDrop () {
       $(targetChip).removeClass('dragged');    
     }
   );
+
+  var elemUnderPointer = {};
+  $(document).on('touchend touchcancel', 
+    function() {
+
+      elemUnderPointer = document.elementFromPoint(event.changedTouches[0].pageX, event.changedTouches[0].pageY);
+
+      if( $(elemUnderPointer).hasClass('blackHome') ) {
+
+        event.preventDefault();
+        // $(elemUnderPointer).addClass('dropZone');
+
+        $(targetChip).css({
+          'border-radius': '25%',
+          'height': '1vw',
+          'background-image': 'none',
+          'background': 'radial-gradient(black, #383434)'
+        });
+
+        $(targetChip).detach().appendTo('#homeForBlack');          
+        chips[targetChipNum].position = 200;
+
+      } else {     
+          if( $(elemUnderPointer).hasClass('midTri') ) {
+            var numWhites = 0;
+            var blocked = 0;
+            for(k=0; k<15; k++) {
+              if( chips[k].position == $(elemUnderPointer)[0].id.replace('midTri', '') ) {
+                numWhites = numWhites + 1;
+              }
+            }
+             if(numWhites>1) {
+              blocked = 1;
+            }
+
+            if(!blocked) {        
+
+              event.preventDefault(); 
+
+              $(elemUnderPointer).addClass('dropZone');
+
+              $(elemUnderPointer).removeClass('disableChildEvents');
+
+              targetPositioner = $(elemUnderPointer).find('.positioner');
+
+              targetChipNum = $(targetChip)[0].id.replace("chip", "");
+              var targetPositionerNum = $(targetPositioner)[0].id.replace("positioner", "");
+
+              var placeInside = {};
+              var numBlacksTest = 0;
+              var full = 0;
+              for(i=15; i<30; i++) {
+                if( chips[i].position == targetPositionerNum ) {
+                  numBlacksTest = numBlacksTest + 1;
+                }
+              }
+              if(numBlacksTest>=5) {
+                full = 1;        
+              }
+              if(!full) {
+                placeInside = $(targetPositioner.find('.chipHolder'));
+              } else {
+                  placeInside = $(targetPositioner.find('.excessChipHolder'));
+                }
+
+              if( $(elemUnderPointer).hasClass('dropZone') ) { 
+
+                $(targetChip).detach().appendTo(placeInside);
+                chips[targetChipNum].position = targetPositionerNum;
+              
+                for(k=0; k<15; k++) {
+                  if(chips[k].position == targetPositionerNum) {
+                    $('#chip' + k).detach().appendTo('#barForWhite');
+                    chips[k].position = -1;
+                  }  
+                }
+              }
+            }
+          }
+        }
+        $('.midTri').removeClass('disableChildEvents dropZone');
+        $(targetChip).removeClass('dragged');
+    }    
+  );   
 
 
 // End black turn
@@ -1522,6 +1619,7 @@ var uniqueBadOffMoves = unique(badOffMoves);
 
   var chipsOnBar = [];
   if(legitMoves.length === 0 && onBar === 1) {
+
     for (i=0; i<15; i++) {
       if(chips[i].position === -1) {
         chipsOnBar.push(i);
@@ -1543,58 +1641,89 @@ var uniqueBadOffMoves = unique(badOffMoves);
 
     console.log('blocked:' + blocked);
 
-    if( $.inArray((diceValues[0] - 1 ), blocked) == -1 ) {
-  
-      var inDestination = diceValues[0] - 1;
-  
-      $('#chip' + chipsOnBar[0]).effect( "pulsate", {times:3}, 3000 );
-  
-      setTimeout(
-        function() {
-          $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination + ' ' + '.chipHolder');
-        }, 3000);
+    if( (chipsOnBar.length > 4) && (diceValues[0] == diceValues[1]) ) {
 
-      chips[chipsOnBar[0]].position = inDestination;
+      if( $.inArray((diceValues[0] - 1 ), blocked ) == -1 ) {
 
-      chipsOnBar.splice(0,1); 
-
-      for(k=15; k<30; k++) {
-        if(chips[k].position == inDestination) {
-          $('#chip' + k).detach().appendTo('#barForBlack');
-          chips[k].position = 100;
-        }  
-      }
-    }
-
-
-      if(chipsOnBar.length !== 0) {
-
-      if( $.inArray((diceValues[1] - 1 ), blocked) == -1 ) {
-
-        var inDestination2 = diceValues[1] - 1;
-
-        setTimeout(
-          function() {      
-            $('#chip' + chipsOnBar[0]).effect( "pulsate", {times:3}, 3000 );
-          }, 3000);
-
+        var inDestination = diceValues[0] - 1;
+    
+        $('#chip' + chipsOnBar[0]).effect( "pulsate", {times:3}, 3000 );
+        $('#chip' + chipsOnBar[1]).effect( "pulsate", {times:3}, 3000 );
+        $('#chip' + chipsOnBar[2]).effect( "pulsate", {times:3}, 3000 );
+        $('#chip' + chipsOnBar[3]).effect( "pulsate", {times:3}, 3000 );
+    
         setTimeout(
           function() {
-            $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination2 + ' ' + '.chipHolder');
-          }, 6000);
-        
-        chips[chipsOnBar[0]].position = inDestination2;  
+            $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination + ' ' + '.chipHolder');
+            $('#chip' + chipsOnBar[1]).detach().appendTo('#positioner' + inDestination + ' ' + '.chipHolder');
+            $('#chip' + chipsOnBar[2]).detach().appendTo('#positioner' + inDestination + ' ' + '.chipHolder');
+            $('#chip' + chipsOnBar[3]).detach().appendTo('#positioner' + inDestination + ' ' + '.chipHolder');
+          }, 3000
+        );
+
+        chips[chipsOnBar[0]].position = inDestination;
+        chips[chipsOnBar[1]].position = inDestination;
+        chips[chipsOnBar[2]].position = inDestination;
+        chips[chipsOnBar[3]].position = inDestination;
 
         for(k=15; k<30; k++) {
-          if(chips[k].position == inDestination2) {
+          if(chips[k].position == inDestination) {
             $('#chip' + k).detach().appendTo('#barForBlack');
             chips[k].position = 100;
-          }  
+          }
+        }  
+      }
+    } else { 
+
+        if( $.inArray((diceValues[0] - 1 ), blocked ) == -1 ) {
+      
+          var inDestination1 = diceValues[0] - 1;
+      
+          $('#chip' + chipsOnBar[0]).effect( "pulsate", {times:3}, 3000 );
+      
+          setTimeout(
+            function() {
+              $('#chip' + chipsOnBar[0]).detach().appendTo('#positioner' + inDestination1 + ' ' + '.chipHolder');
+            }, 3000);
+
+          chips[chipsOnBar[0]].position = inDestination1;
+
+          for(k=15; k<30; k++) {
+            if(chips[k].position == inDestination1) {
+              $('#chip' + k).detach().appendTo('#barForBlack');
+              chips[k].position = 100;
+            }  
+          }
         }
 
+        if(chipsOnBar.length !== 0) {
+
+          if( $.inArray((diceValues[1] - 1 ), blocked) == -1 ) {
+
+            var inDestination2 = diceValues[1] - 1;
+
+            setTimeout(
+              function() {      
+                $('#chip' + chipsOnBar[1]).effect( "pulsate", {times:3}, 3000 );
+              }, 3000);
+
+            setTimeout(
+              function() {
+                $('#chip' + chipsOnBar[1]).detach().appendTo('#positioner' + inDestination2 + ' ' + '.chipHolder');
+              }, 6000);
+            
+            chips[chipsOnBar[1]].position = inDestination2;  
+
+            for(k=15; k<30; k++) {
+              if(chips[k].position == inDestination2) {
+                $('#chip' + k).detach().appendTo('#barForBlack');
+                chips[k].position = 100;
+              }  
+            }
+          }
+        }
       }
-    }
-  }
+  }    
 
   function indexOfLowest(a) {
     var lowest = 0;
